@@ -1,1 +1,7 @@
+BASE_DATA_DIR_PATH = "/home/przemek/Downloads/corn2/kukurydza_5_ha/"
+BASE_OUTPUT_DATA_DIR_PATH = "/home/przemek/Downloads/corn2/processed/"
+
 FIELD_BORDER_EROSION_SIZE_PIXELS = 35
+TILE_STRIDE = 256
+TILE_SIZE = (512 + 256)
+MINIMUM_TILE_FIELD_COVERAGE_PERCENTAGE = 75
