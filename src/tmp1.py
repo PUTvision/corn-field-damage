@@ -1,12 +1,24 @@
 import os
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, List
 
 import cv2
 import numpy as np
 from geotiff import GeoTiff
 import geopandas
 
+from src import config, util
+
+
+def show_small_img(img, name='img', show=False):
+    if not show:
+        return
+
+    small_height = 512
+    shape = img.shape[:2]
+    img_small = cv2.resize(img, (small_height, int(512 / shape[1] * shape[0])))
+    cv2.imshow(name, img_small)
+    cv2.waitKey()
 
 @dataclass
 class CoordinatesRect:
@@ -66,56 +78,79 @@ class GeoTiffImageWrapper:
         pixel_area_square_meters = self.spacial_resolution_x_in_meters * self.spacial_resolution_y_in_meters
         return pixel_area_square_meters
 
-    def transform_polygon_to_xy_pixels(self, polygon: Tuple[np.ndarray, np.ndarray]) -> np.ndarray:
+    def transform_polygons_to_xy_pixels(self, polygons: Tuple[np.ndarray, np.ndarray]) -> List[np.ndarray]:
         """
-        Transform coordinates polygon to pixels contour (with cv2 format)
-        :param polygon: tuple with two lists (x and y points respoectively)
-        :return: 2D contour
+        Transform coordinates polygons to pixels contours (with cv2 format)
+        :param polygons: List of tuples with two lists each (x and y points respoectively)
+        :return: 2D contours list
         """
-        x_epsg, y_epsg = polygon
-        yx_px = np.zeros((len(x_epsg), 2), dtype=int)
-        x_left = self.bounding_box.x_left
-        y_upper = self.bounding_box.y_upper
-        for i in range(len(x_epsg)):
-            yx_px[i][0] = round((x_epsg[i] - x_left) * self._pixels_per_epsg_x)
-            yx_px[i][1] = round((y_upper - y_epsg[i]) * self._pixels_per_epsg_y)
+        yx_pixel_contours = []
+        for polygon in polygons:
+            x_epsg, y_epsg = polygon
+            yx_px = np.zeros((len(x_epsg), 2), dtype=int)
+            x_left = self.bounding_box.x_left
+            y_upper = self.bounding_box.y_upper
+            for i in range(len(x_epsg)):
+                yx_px[i][0] = round((x_epsg[i] - x_left) * self._pixels_per_epsg_x)
+                yx_px[i][1] = round((y_upper - y_epsg[i]) * self._pixels_per_epsg_y)
+            yx_pixel_contours.append(yx_px)
+        return yx_pixel_contours
 
-        return yx_px
+    def apply_mask(self, mask_img, show=False):
+        self.img = cv2.bitwise_and(self.img, self.img, mask=mask_img)
+        util.show_small_img(img=self.img, name='field_masked', show=show)
 
 
-class FieldArea:
-    """ Wraps gpkg file with entire filed area mask (obszar.gpkg) """
+class BaseArea:
     def __init__(self, file_path):
         self.data = geopandas.read_file(file_path)
         self.mask_img = None
 
-    def get_polygon_xy(self) -> Tuple[np.ndarray, np.ndarray]:
-        area_polygon = self.data.to_numpy()[0][0][0]
-        x_epsg, y_epsg = area_polygon.exterior.coords.xy
-        return x_epsg, y_epsg
+    def _get_polygons_xy(self) -> List[Tuple[np.ndarray, np.ndarray]]:
+        raise NotImplementedError
 
-    def create_mask_for_tif(self, tif_wrapper: GeoTiffImageWrapper, erode_contour_size=30, show=False):
+    def create_mask_for_tif(self, tif_wrapper: GeoTiffImageWrapper, erode_contour_size: int = 0, show=False):
         shape = tif_wrapper.img.shape[:2]
         self.mask_img = np.zeros(shape, np.uint8)
-        polygon = self.get_polygon_xy()
-        yx_px = tif_wrapper.transform_polygon_to_xy_pixels(polygon)
-        cv2.fillPoly(self.mask_img, pts=[yx_px], color=255)
+        polygons = self._get_polygons_xy()
+        yx_pixel_contours = tif_wrapper.transform_polygons_to_xy_pixels(polygons)
+        cv2.fillPoly(self.mask_img, pts=yx_pixel_contours, color=255)
 
         if erode_contour_size:
             # erosion because field area goes over the real border of the field sometime
             self.mask_img = cv2.erode(self.mask_img, np.ones((erode_contour_size, erode_contour_size), np.uint8))
 
-        if show:
-            small_height = 512
-            area_mask_small = cv2.resize(self.mask_img, (small_height, int(512 / shape[1] * shape[0])))
-            cv2.imshow('area_mask_small', area_mask_small)
-            cv2.waitKey()
+        util.show_small_img(img=self.mask_img, name='area_mask_small', show=show)
 
 
-class DamageArea:
+class FieldArea(BaseArea):
+    """ Wraps gpkg file with entire filed area mask (obszar.gpkg) """
+    def __init__(self, file_path):
+        super().__init__(file_path)
+
+    def _get_polygons_xy(self):
+        area_polygon = self.data.to_numpy()[0][0][0]
+        x_epsg, y_epsg = area_polygon.exterior.coords.xy
+        return [(x_epsg, y_epsg)]
+
+    def create_mask_for_tif(self, tif_wrapper: GeoTiffImageWrapper, erode_contour_size: int = 0, show=False):
+        erode_contour_size = config.FIELD_BORDER_EROSION_SIZE_PIXELS
+        super().create_mask_for_tif(tif_wrapper=tif_wrapper, erode_contour_size=erode_contour_size, show=show)
+
+
+class DamageArea(BaseArea):
     """ Wraps gpkg file with damage filed area mask (szkody_placowe.gpkg) """
     def __init__(self, file_path):
-        self.data = geopandas.read_file(file_path)
+        super().__init__(file_path)
+
+    def _get_polygons_xy(self):
+        polygons = []
+        for shapely_polygon in self.data.to_numpy():
+            area_polygon = shapely_polygon[0][0]
+            x_epsg, y_epsg = area_polygon.exterior.coords.xy
+            polygons.append((x_epsg, y_epsg))
+        return polygons
+
 
 
 def main():
@@ -130,11 +165,17 @@ def main():
     field_area = FieldArea(field_area_file_path)
     damage_area = DamageArea(damage_area_file_path)
 
-    field_area.create_mask_for_tif(tif_wrapper, show=True)
+    damage_area.create_mask_for_tif(tif_wrapper, show=False)
+    field_area.create_mask_for_tif(tif_wrapper, show=False)
+
+    tif_wrapper.apply_mask(field_area.mask_img)
+
+    
 
 
 if __name__ == '__main__':
     main()
+    cv2.waitKey()
     print('end')
 
 
