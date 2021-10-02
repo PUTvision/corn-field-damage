@@ -44,7 +44,7 @@ class GeoTiffImageWrapper:
 
         # self.img = cv2.imread(file_path)  # opencv fails to load image larger than a few GB
         # assert self.img.data
-        self.img = imread(file_path)
+        self.img = imread(file_path)[:, :, :3].copy()
 
         self.img_size_y_pixels, self.img_size_x_pixels, _ = self.img.shape
 

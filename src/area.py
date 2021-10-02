@@ -1,3 +1,4 @@
+import math
 import os
 from dataclasses import dataclass
 from typing import List, Tuple
@@ -19,7 +20,13 @@ class BaseArea:
         self.mask_color = mask_color
 
     def _get_polygons_xy(self) -> List[Tuple[np.ndarray, np.ndarray]]:
-        raise NotImplementedError
+        polygons = []
+        interiors = []
+        for shapely_polygon in self.data.to_numpy():
+            area_polygon = shapely_polygon[0][0]
+            x_epsg, y_epsg = area_polygon.exterior.coords.xy
+            polygons.append((x_epsg, y_epsg))
+        return polygons
 
     def create_mask_for_tif(self, tif_wrapper: GeoTiffImageWrapper, erode_contour_size: int = 0, show=False):
         shape = tif_wrapper.img.shape[:2]
@@ -39,11 +46,6 @@ class FieldArea(BaseArea):
     """ Wraps gpkg file with entire filed area mask (obszar.gpkg) """
     def __init__(self, file_path):
         super().__init__(file_path)
-
-    def _get_polygons_xy(self):
-        area_polygon = self.data.to_numpy()[0][0][0]
-        x_epsg, y_epsg = area_polygon.exterior.coords.xy
-        return [(x_epsg, y_epsg)]
 
     def create_mask_for_tif(self, tif_wrapper: GeoTiffImageWrapper, erode_contour_size: int = 0, show=False):
         erode_contour_size = config.FIELD_BORDER_EROSION_SIZE_PIXELS
@@ -73,14 +75,6 @@ class DamageArea(BaseArea):
     def __init__(self, file_path):
         super().__init__(file_path, mask_color=config.COLOR_VALUE__DAMAGED_AREA_ON_TILE_MASK)
 
-    def _get_polygons_xy(self):
-        polygons = []
-        for shapely_polygon in self.data.to_numpy():
-            area_polygon = shapely_polygon[0][0]
-            x_epsg, y_epsg = area_polygon.exterior.coords.xy
-            polygons.append((x_epsg, y_epsg))
-        return polygons
-
     def create_mask_for_tif_and_area(self, tif_wrapper: GeoTiffImageWrapper, field_area: FieldArea, show=False):
         super().create_mask_for_tif(tif_wrapper=tif_wrapper, show=show)
 
@@ -91,12 +85,20 @@ class DamageArea(BaseArea):
         print(f'Damaged area as percentage: {damaged_area_m2/total_field_size * 100:.3f} %')
 
         # set pixels outside of the real corn field to some other value
-        self.mask_img[np.where(field_area.mask_img == 0)] = config.COLOR_VALUE__NOT_FIELD_AREA_ON_TILE_MASK
+        # we need to split this operation into a few steps, because np.where consumes too much RAM!
+        STEP = 5000
+        for i in range(math.ceil(field_area.mask_img.shape[0] / STEP)):
+            start_index = i * STEP
+            end_index = (i+1) * STEP
+            self.mask_img[start_index:end_index, :][np.where(field_area.mask_img[start_index:end_index, :] == 0)] = \
+                config.COLOR_VALUE__NOT_FIELD_AREA_ON_TILE_MASK
+
         util.show_small_img(self.mask_img, name='damage', show=show)
 
     def calculate_damaged_pixels_count(self):
         if self.mask_img is None:
             raise Exception("Mask not create yet!")
+        # unique, counts = np.unique(self.mask_img, return_counts=True)
         damaged_pixels = np.where(self.mask_img == config.COLOR_VALUE__DAMAGED_AREA_ON_TILE_MASK)
         damaged_pixels_count = damaged_pixels[0].shape[0]
         return damaged_pixels_count
