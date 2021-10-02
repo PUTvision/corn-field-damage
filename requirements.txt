@@ -2,13 +2,9 @@ ipython
 jupyter
 matplotlib
 scipy
-numpy
 ipython
+numpy
 opencv-python
 
-
 geotiff  # lgpl
-# geopackage-python # gpl
 geopandas
-# Cython
-# geoplot  # requires: sudo apt-get install libgeos++-dev
