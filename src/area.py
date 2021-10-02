@@ -24,16 +24,20 @@ class BaseArea:
         interiors = []
         for shapely_polygon in self.data.to_numpy():
             area_polygon = shapely_polygon[0][0]
+            for interior in area_polygon.interiors:
+                interiors.append(interior.coords.xy)
             x_epsg, y_epsg = area_polygon.exterior.coords.xy
             polygons.append((x_epsg, y_epsg))
-        return polygons
+        return polygons, interiors
 
     def create_mask_for_tif(self, tif_wrapper: GeoTiffImageWrapper, erode_contour_size: int = 0, show=False):
         shape = tif_wrapper.img.shape[:2]
         self.mask_img = np.zeros(shape, np.uint8)
-        polygons = self._get_polygons_xy()
+        polygons, interiors = self._get_polygons_xy()
         yx_pixel_contours = tif_wrapper.transform_polygons_to_xy_pixels(polygons)
+        yx_pixel_interiors = tif_wrapper.transform_polygons_to_xy_pixels(interiors)
         cv2.fillPoly(self.mask_img, pts=yx_pixel_contours, color=self.mask_color)
+        cv2.fillPoly(self.mask_img, pts=yx_pixel_interiors, color=0)
 
         if erode_contour_size:
             # erosion because field area goes over the real border of the field sometime

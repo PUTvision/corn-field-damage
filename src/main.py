@@ -30,7 +30,6 @@ def process_subdirectory(data_dir_path, output_dir_path):
             is_rectangle_within_field = field_area.is_rectangle_within_field(tile=tile)
 
             ascii_char_to_draw = 'x' if is_rectangle_within_field else '_'
-            # if x_bin_number % 4 == 0:  # limit printing of tiles in console
             print(ascii_char_to_draw, end='')
             tile_no = y_bin_number * x_bins_number + x_bin_number
             if x_bin_number == (x_bins_number - 1):
