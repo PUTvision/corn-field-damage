@@ -5,6 +5,7 @@ from typing import Tuple, List
 import numpy as np
 import cv2
 from geotiff import GeoTiff
+from skimage.io import imread
 
 import config, util
 
@@ -39,7 +40,12 @@ class GeoTiffImageWrapper:
         assert self.geo_tiff.crs_code == 32633  # Processing supports only EPSG32633
         self.coord_bounding_box = CoordinatesRect.from_2_tuples(self.geo_tiff.tif_bBox)
 
-        self.img = cv2.imread(file_path)
+        assert os.path.isfile(file_path)
+
+        # self.img = cv2.imread(file_path)  # opencv fails to load image larger than a few GB
+        # assert self.img.data
+        self.img = imread(file_path)
+
         self.img_size_y_pixels, self.img_size_x_pixels, _ = self.img.shape
 
         self._pixels_per_epsg_x = 1 / self.spacial_resolution_x_in_meters  # so the same as pixels for one meter in x

@@ -1,5 +1,6 @@
 import os
 
+os.environ["OPENCV_IO_MAX_IMAGE_PIXELS"] = pow(2, 40).__str__()  # increase limit of pixels (2^30), before importing cv2
 import cv2
 
 import config
@@ -44,6 +45,8 @@ def process_subdirectory(data_dir_path, output_dir_path):
 
 
 def main():
+
+
     subdirectories = config.SUBDIRECTORIES_TO_PROCESS
     for i, subdirectory_name in enumerate(subdirectories):
         print('*'*30)

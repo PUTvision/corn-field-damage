@@ -8,3 +8,6 @@ opencv-python
 
 geotiff  # lgpl
 geopandas
+
+scikit-image
+imagecodecs
