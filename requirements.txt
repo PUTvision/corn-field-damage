@@ -13,3 +13,4 @@ geopandas
 
 scikit-image
 imagecodecs
+segmentation-models-pytorch
