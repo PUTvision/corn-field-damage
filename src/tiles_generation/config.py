@@ -1,5 +1,5 @@
-BASE_DATA_DIR_PATH = "/home/przemek/Downloads/corn2/"  # directory with data as on google drive
-BASE_OUTPUT_DATA_DIR_PATH = "/media/data/nextcloud/Wspoldzielone/PP/corn/processed/"  # base directory where to save the processed data
+BASE_DATA_DIR_PATH = "/media/przemek/data/corn_data/raw"  # directory with data as on google drive
+BASE_OUTPUT_DATA_DIR_PATH = "/media/przemek/data/corn_data/processed"  # base directory where to save the processed data
 
 TIF_FILE_NAME = 'fotomapa.tif'
 FIELD_AREA_FILE_NAME = 'obszar.gpkg'
@@ -7,14 +7,14 @@ DAMAGE_AREA_FILE_NAME = 'szkody_placowe.gpkg'
 
 SUBDIRECTORIES_TO_PROCESS = [
     "kukurydza_5_ha",
-    "kukurydza_10_ha",
-    "kukurydza_11_ha",
-    "kukurydza_13_ha",
-    "kukurydza_15_ha",
-    "kukurydza_18_ha",
-    "kukurydza_25_ha",
-    "kukurydza_38_ha",
-    "kukurydza_60_ha",
+    # "kukurydza_10_ha",
+    # "kukurydza_11_ha",
+    # "kukurydza_13_ha",
+    # "kukurydza_15_ha",
+    # "kukurydza_18_ha",
+    # "kukurydza_25_ha",
+    # "kukurydza_38_ha",
+    # "kukurydza_60_ha",
 ]
 
 FIELD_BORDER_EROSION_SIZE_PIXELS = 35  # [in pixels] Erode the field border, because sometimes it goes too far

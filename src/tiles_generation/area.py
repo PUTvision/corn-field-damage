@@ -1,6 +1,4 @@
 import math
-import os
-from dataclasses import dataclass
 from typing import List, Tuple
 
 import geopandas
