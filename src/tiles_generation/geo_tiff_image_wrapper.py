@@ -7,7 +7,7 @@ import cv2
 from geotiff import GeoTiff
 from skimage.io import imread
 
-import config, util
+import util
 
 
 @dataclass
