@@ -37,5 +37,5 @@ class Tile:
         tile_img_file_path = os.path.join(tile_output_dir, tile_img_file_name)
         tile_mask_file_path = os.path.join(tile_output_dir, tile_mask_file_name)
 
-        cv2.imwrite(img=damage_roi, filename=tile_img_file_path)
-        cv2.imwrite(img=field_roi, filename=tile_mask_file_path)
+        cv2.imwrite(img=field_roi, filename=tile_img_file_path)
+        cv2.imwrite(img=damage_roi, filename=tile_mask_file_path)

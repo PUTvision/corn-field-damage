@@ -44,8 +44,6 @@ def process_subdirectory(data_dir_path, output_dir_path):
 
 
 def main():
-
-
     subdirectories = config.SUBDIRECTORIES_TO_PROCESS
     for i, subdirectory_name in enumerate(subdirectories):
         print('*'*30)
