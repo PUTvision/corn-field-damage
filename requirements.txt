@@ -5,6 +5,8 @@ scipy
 ipython
 numpy
 opencv-python
+pytorch
+albumentations
 
 geotiff  # lgpl
 geopandas
