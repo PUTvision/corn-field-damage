@@ -1,13 +1,23 @@
-BASE_DATA_DIR_PATH = "/media/przemek/data/corn_data/raw"  # directory with data as on google drive
-BASE_OUTPUT_DATA_DIR_PATH = "/media/przemek/data/corn_data/processed"  # base directory where to save the processed data
+import platform
+
+hostname = platform.node()
+if hostname == 'przemek-PC':
+    BASE_DATA_DIR_PATH = "/media/data/nextcloud/Wspoldzielone/PP/corn/raw"  # directory with data as on google drive
+    BASE_OUTPUT_DATA_DIR_PATH = "/media/data/local/corn/"  # base directory where to save the processed data
+elif hostname == 'przemek-notebook':
+    BASE_DATA_DIR_PATH = "/media/przemek/data/corn_data/raw"  # directory with data as on google drive
+    BASE_OUTPUT_DATA_DIR_PATH = "/media/przemek/data/corn_data/processed"  # base directory where to save the processed data
+else:
+    raise Exception("Error! Please specify BASE_DATA_DIR_PATH and BASE_OUTPUT_DATA_DIR_PATH in config.py!")
+
 
 TIF_FILE_NAME = 'fotomapa.tif'
 FIELD_AREA_FILE_NAME = 'obszar.gpkg'
 DAMAGE_AREA_FILE_NAME = 'szkody_placowe.gpkg'
 
 SUBDIRECTORIES_TO_PROCESS = [
-    "kukurydza_5_ha",
-    # "kukurydza_10_ha",
+    # "kukurydza_5_ha",
+    "kukurydza_10_ha",
     # "kukurydza_11_ha",
     # "kukurydza_13_ha",
     # "kukurydza_15_ha",
