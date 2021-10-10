@@ -28,7 +28,8 @@ SUBDIRECTORIES_TO_PROCESS = [
 ]
 
 FIELD_BORDER_EROSION_SIZE_PIXELS = 35  # [in pixels] Erode the field border, because sometimes it goes too far
-TILE_STRIDE = 768  # in pixels
+# TILE_STRIDE = 768  # in pixels
+TILE_STRIDE = 256  # in pixels
 TILE_SIZE = (512 + 256)  # in pixels
 MINIMUM_TILE_FIELD_COVERAGE_PERCENTAGE = 75  # 0-100. Minimal percentage of corn field in the tile to save it
 

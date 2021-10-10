@@ -37,5 +37,6 @@ class Tile:
         tile_img_file_path = os.path.join(tile_output_dir, tile_img_file_name)
         tile_mask_file_path = os.path.join(tile_output_dir, tile_mask_file_name)
 
-        cv2.imwrite(img=field_roi, filename=tile_img_file_path)
+        field_roi_bgr = cv2.cvtColor(field_roi, cv2.COLOR_RGB2BGR)
+        cv2.imwrite(img=field_roi_bgr, filename=tile_img_file_path)
         cv2.imwrite(img=damage_roi, filename=tile_mask_file_path)
