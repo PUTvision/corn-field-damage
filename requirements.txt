@@ -5,7 +5,7 @@ scipy
 ipython
 numpy
 opencv-python
-pytorch
+torch
 albumentations
 
 geotiff  # lgpl
