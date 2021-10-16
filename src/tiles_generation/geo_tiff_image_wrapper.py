@@ -8,6 +8,7 @@ from geotiff import GeoTiff
 from skimage.io import imread
 
 import util
+from tiles_generation import config
 
 
 @dataclass
@@ -42,15 +43,27 @@ class GeoTiffImageWrapper:
 
         assert os.path.isfile(file_path)
 
-        # self.img = cv2.imread(file_path)  # opencv fails to load image larger than a few GB
-        # assert self.img.data
-        self.img = imread(file_path)[:, :, :3].copy()
+        self.img = self.load_and_scale_img(file_path)
 
         self.img_size_y_pixels, self.img_size_x_pixels, _ = self.img.shape
 
         self._pixels_per_epsg_x = 1 / self.spacial_resolution_x_in_meters  # so the same as pixels for one meter in x
         self._pixels_per_epsg_y = 1 / self.spacial_resolution_y_in_meters  # so the same as pixels for one meter in y
         self.print_stats()
+
+    def load_and_scale_img(self, file_path):
+        # self.img = cv2.imread(file_path)  # opencv fails to load image larger than a few GB
+        # assert self.img.data
+        img = imread(file_path)[:, :, :3].copy()
+        # assume x and y resolutions are equal
+        x_resolution = self.coord_bounding_box.get_x_distance_in_meters() / (img.shape[1] - 1)
+        print(f'TIF image resolution x before scaling: {x_resolution:.3f} [meters per pixel]')
+        expected_resolution = config.FINAL_SCALED_IMAGE_RESOLUTION__METER_PER_PIXEL
+        scaling_factor = x_resolution / expected_resolution
+        new_shape = int(img.shape[1] * scaling_factor), int(img.shape[0] * scaling_factor)
+        img_scaled = cv2.resize(img, dsize=new_shape, interpolation=cv2.INTER_CUBIC)
+
+        return img_scaled
 
     def print_stats(self):
         print(f'TIF EPSG32633 bounding box = {self.coord_bounding_box}')
