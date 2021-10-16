@@ -28,9 +28,10 @@ SUBDIRECTORIES_TO_PROCESS = [
     "kukurydza_60_ha",
 ]
 
-FIELD_BORDER_EROSION_SIZE_PIXELS = 35  # [in pixels] Erode the field border, because sometimes it goes too far
-# TILE_STRIDE = 768  # in pixels
-TILE_STRIDE = 256  # in pixels
+POINT_DAMAGE_RADIUS_METERS = 1.5 / 2  # ~ 1.5m diameter on average - 50 pixels
+FIELD_BORDER_EROSION_SIZE_PIXELS = 70  # [in pixels] Erode the field border, because sometimes it goes too far
+TILE_STRIDE = 768  # in pixels
+# TILE_STRIDE = 256  # in pixels
 TILE_SIZE = (512 + 256)  # in pixels
 MINIMUM_TILE_FIELD_COVERAGE_PERCENTAGE = 75  # 0-100. Minimal percentage of corn field in the tile to save it
 

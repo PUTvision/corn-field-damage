@@ -61,6 +61,10 @@ class GeoTiffImageWrapper:
         print(f'TIF image resolution xy [meters per pixel]: '
               f'{self.spacial_resolution_x_in_meters:.3f}, {self.spacial_resolution_y_in_meters:.3f}')
 
+    def convert_distance_in_meters_to_pixels(self, distance) -> float:
+        # assuming x and y resolutions are close enough
+        return distance / self.spacial_resolution_x_in_meters
+
     @property
     def spacial_resolution_x_in_meters(self) -> float:
         return self.coord_bounding_box.get_x_distance_in_meters() / (self.img_size_x_pixels - 1)
@@ -74,7 +78,7 @@ class GeoTiffImageWrapper:
         pixel_area_square_meters = self.spacial_resolution_x_in_meters * self.spacial_resolution_y_in_meters
         return pixel_area_square_meters
 
-    def transform_polygons_to_xy_pixels(self, polygons: List[Tuple[np.ndarray, np.ndarray]]) -> List[np.ndarray]:
+    def transform_polygons_to_yx_pixels(self, polygons: List[Tuple[np.ndarray, np.ndarray]]) -> List[np.ndarray]:
         """
         Transform coordinates polygons to pixels contours (with cv2 format)
         :param polygons: List of tuples with two lists each (x and y points respoectively)

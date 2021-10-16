@@ -32,8 +32,8 @@ class BaseArea:
         shape = tif_wrapper.img.shape[:2]
         self.mask_img = np.zeros(shape, np.uint8)
         polygons, interiors = self._get_polygons_xy()
-        yx_pixel_contours = tif_wrapper.transform_polygons_to_xy_pixels(polygons)
-        yx_pixel_interiors = tif_wrapper.transform_polygons_to_xy_pixels(interiors)
+        yx_pixel_contours = tif_wrapper.transform_polygons_to_yx_pixels(polygons)
+        yx_pixel_interiors = tif_wrapper.transform_polygons_to_yx_pixels(interiors)
         cv2.fillPoly(self.mask_img, pts=yx_pixel_contours, color=self.mask_color)
         cv2.fillPoly(self.mask_img, pts=yx_pixel_interiors, color=0)
 
@@ -77,6 +77,26 @@ class DamageArea(BaseArea):
     def __init__(self, file_path):
         super().__init__(file_path, mask_color=config.COLOR_VALUE__DAMAGED_AREA_ON_TILE_MASK)
 
+    @staticmethod
+    def _get_point_pixel_coordinates(point_damage_file_path: str, tif_wrapper):
+        point_damage_data = geopandas.read_file(point_damage_file_path)
+        points = point_damage_data.to_numpy()
+        points_pixel_coordinates = []
+        for point_list in points:
+            point = point_list[0]
+            xy = [point.xy[0][0]], [point.xy[1][0]]
+            points_pixel_coordinates += tif_wrapper.transform_polygons_to_yx_pixels([xy])
+        return points_pixel_coordinates
+
+    def _create_mask_for_point_damages(self, point_damage_file_path: str, tif_wrapper: GeoTiffImageWrapper):
+        points_pixel_coordinates = self._get_point_pixel_coordinates(
+            point_damage_file_path=point_damage_file_path, tif_wrapper=tif_wrapper)
+
+        radius_pixels = round(tif_wrapper.convert_distance_in_meters_to_pixels(config.POINT_DAMAGE_RADIUS_METERS))
+        for point in points_pixel_coordinates:
+            yx = point[0]
+            cv2.circle(self.mask_img, center=yx, radius=radius_pixels, thickness=-1, color=self.mask_color)
+
     def create_mask_for_tif_and_area(self,
                                      tif_wrapper: GeoTiffImageWrapper,
                                      field_area: FieldArea,
@@ -84,24 +104,14 @@ class DamageArea(BaseArea):
                                      show=False):
         super().create_mask_for_tif(tif_wrapper=tif_wrapper, show=show)
 
-
-        point_damage_data = geopandas.read_file(point_damage_file_path)
-        points = point_damage_data.to_numpy()
-        for point_list in points:
-            point = point_list[0]
-            xy = point.xy[0][0]
-            tif_wrapper.transform_polygons_to_xy_pixels([xy])
-        todo
-
-
-
-
+        self._create_mask_for_point_damages(
+            point_damage_file_path=point_damage_file_path, tif_wrapper=tif_wrapper)
 
         damaged_area_m2 = self.calculate_damaged_pixels_count() * tif_wrapper.get_square_meters_per_pixel
         total_field_size = cv2.countNonZero(field_area.mask_img) * tif_wrapper.get_square_meters_per_pixel
         print(f'Damaged area = {damaged_area_m2:.3f} m^2')
         print(f'Total field area = {total_field_size:.3f} m^2')
-        print(f'Damaged area as percentage: {damaged_area_m2/total_field_size * 100:.3f} %')
+        print(f'Total damaged as percentage: {damaged_area_m2/total_field_size * 100:.3f} %')
 
         # set pixels outside of the real corn field to some other value
         # we need to split this operation into a few steps, because np.where consumes too much RAM!
