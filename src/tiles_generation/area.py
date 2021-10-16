@@ -77,8 +77,25 @@ class DamageArea(BaseArea):
     def __init__(self, file_path):
         super().__init__(file_path, mask_color=config.COLOR_VALUE__DAMAGED_AREA_ON_TILE_MASK)
 
-    def create_mask_for_tif_and_area(self, tif_wrapper: GeoTiffImageWrapper, field_area: FieldArea, show=False):
+    def create_mask_for_tif_and_area(self,
+                                     tif_wrapper: GeoTiffImageWrapper,
+                                     field_area: FieldArea,
+                                     point_damage_file_path: str,
+                                     show=False):
         super().create_mask_for_tif(tif_wrapper=tif_wrapper, show=show)
+
+
+        point_damage_data = geopandas.read_file(point_damage_file_path)
+        points = point_damage_data.to_numpy()
+        for point_list in points:
+            point = point_list[0]
+            xy = point.xy[0][0]
+            tif_wrapper.transform_polygons_to_xy_pixels([xy])
+        todo
+
+
+
+
 
         damaged_area_m2 = self.calculate_damaged_pixels_count() * tif_wrapper.get_square_meters_per_pixel
         total_field_size = cv2.countNonZero(field_area.mask_img) * tif_wrapper.get_square_meters_per_pixel

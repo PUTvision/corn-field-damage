@@ -14,6 +14,7 @@ else:
 TIF_FILE_NAME = 'fotomapa.tif'
 FIELD_AREA_FILE_NAME = 'obszar.gpkg'
 DAMAGE_AREA_FILE_NAME = 'szkody_placowe.gpkg'
+POINT_DAMAGE_AREA_FILE_NAME = 'szkody_punktowe.gpkg'
 
 SUBDIRECTORIES_TO_PROCESS = [
     "kukurydza_5_ha",

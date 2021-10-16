@@ -15,7 +15,10 @@ def process_subdirectory(data_dir_path, output_dir_path):
     damage_area = DamageArea(file_path=os.path.join(data_dir_path, config.DAMAGE_AREA_FILE_NAME))
 
     field_area.create_mask_for_tif(tif_wrapper, show=False)
-    damage_area.create_mask_for_tif_and_area(tif_wrapper=tif_wrapper, field_area=field_area, show=False)
+    damage_area.create_mask_for_tif_and_area(tif_wrapper=tif_wrapper,
+                                             field_area=field_area,
+                                             point_damage_file_path=config.POINT_DAMAGE_AREA_FILE_NAME,
+                                             show=False)
     tif_wrapper.apply_mask(field_area.mask_img)
 
     x_bins_number = (tif_wrapper.img_size_x_pixels - config.TILE_SIZE) // config.TILE_STRIDE + 1
