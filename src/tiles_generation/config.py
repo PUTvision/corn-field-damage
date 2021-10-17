@@ -4,8 +4,8 @@ hostname = platform.node()
 if hostname == 'przemek-PC':
     BASE_DATA_DIR_PATH = "/media/data/nextcloud/Wspoldzielone/PP/corn/raw"  # directory with data as on google drive
     BASE_OUTPUT_DATA_DIR_PATH = "/media/data/local/corn/processed"  # base directory where to save the processed data
-    MODEL_PATH = '/media/data/local/corn/processed_stride768/model_cpu__trained_without_10ha'
-    # MODEL_PATH = '/media/data/local/corn/processed_stride768/model_cpu'
+    # MODEL_PATH = '/media/data/local/corn/processed_stride768/model_cpu__trained_without_10ha'
+    MODEL_PATH = '/media/data/local/corn/processed_stride768/model_cpu'
 elif hostname == 'przemek-notebook':
     BASE_DATA_DIR_PATH = "/media/przemek/data/corn_data/raw"  # directory with data as on google drive
     BASE_OUTPUT_DATA_DIR_PATH = "/media/przemek/data/corn_data/processed"  # base directory where to save the processed data
@@ -21,15 +21,15 @@ POINT_DAMAGE_AREA_FILE_NAME = 'szkody_punktowe.gpkg'
 DAMAGE_AREA_FROM_NN_FILE_NAME = 'szkody_placowe_nn.gpkg'
 
 SUBDIRECTORIES_TO_PROCESS = [
-    # "kukurydza_5_ha",
+    "kukurydza_5_ha",
     "kukurydza_10_ha",
-    # "kukurydza_11_ha",
-    # "kukurydza_13_ha",
-    # "kukurydza_15_ha",
-    # "kukurydza_18_ha",
-    # "kukurydza_25_ha",
-    # "kukurydza_38_ha",
-    # "kukurydza_60_ha",
+    "kukurydza_11_ha",
+    "kukurydza_13_ha",
+    "kukurydza_15_ha",
+    "kukurydza_18_ha",
+    "kukurydza_25_ha",
+    "kukurydza_38_ha",
+    "kukurydza_60_ha",
 ]
 
 POINT_DAMAGE_RADIUS_METERS = 1.5 / 2  # ~ 1.5m diameter on average - 50 pixels
