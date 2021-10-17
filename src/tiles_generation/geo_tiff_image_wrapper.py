@@ -91,7 +91,7 @@ class GeoTiffImageWrapper:
         pixel_area_square_meters = self.spacial_resolution_x_in_meters * self.spacial_resolution_y_in_meters
         return pixel_area_square_meters
 
-    def transform_polygons_to_yx_pixels(self, polygons: List[Tuple[np.ndarray, np.ndarray]]) -> List[np.ndarray]:
+    def transform_polygons_epsg_to_yx_pixels(self, polygons: List[Tuple[np.ndarray, np.ndarray]]) -> List[np.ndarray]:
         """
         Transform coordinates polygons to pixels contours (with cv2 format)
         :param polygons: List of tuples with two lists each (x and y points respoectively)
@@ -108,6 +108,22 @@ class GeoTiffImageWrapper:
                 yx_px[i][1] = round((y_upper - y_epsg[i]) * self._pixels_per_epsg_y)
             yx_pixel_contours.append(yx_px)
         return yx_pixel_contours
+
+    def transform_contours_yx_pixels_to_epsg(self, polygons):
+        x_left = self.coord_bounding_box.x_left
+        y_upper = self.coord_bounding_box.y_upper
+
+        polygons_epsg = []
+        for polygon_3d in polygons:
+            polygon = polygon_3d.squeeze()
+            polygon_epsg = []
+            for i in range(len(polygon)):
+                yx_px = polygon[i]
+                x_epsg = yx_px[0] / self._pixels_per_epsg_x + x_left
+                y_epsg = -(yx_px[1] / self._pixels_per_epsg_y - y_upper)
+                polygon_epsg.append([x_epsg, y_epsg])
+            polygons_epsg.append(polygon_epsg)
+        return polygons_epsg
 
     def apply_mask(self, mask_img, show=False):
         self.img = cv2.bitwise_and(self.img, self.img, mask=mask_img)

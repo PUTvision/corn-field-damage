@@ -3,6 +3,11 @@ import os
 os.environ["OPENCV_IO_MAX_IMAGE_PIXELS"] = pow(2, 40).__str__()  # increase limit of pixels (2^30), before importing cv2
 import cv2
 
+import geopandas
+import numpy as np
+
+from tiles_generation import util
+from tiles_generation.segmentation.model import FieldDamageSegmentationModel
 import config
 from area import FieldArea, DamageArea
 from geo_tiff_image_wrapper import GeoTiffImageWrapper
@@ -28,7 +33,7 @@ def process_subdirectory(data_dir_path, output_dir_path):
 
     for y_bin_number in range(y_bins_number):
         for x_bin_number in range(x_bins_number):
-            tile = Tile(x_bin_number=x_bin_number, y_bin_number=y_bin_number)
+            tile = Tile(x_bin_number=x_bin_number, y_bin_number=y_bin_number, stride=config.TILE_STRIDE)
             assert tile.end_pixel_x < tif_wrapper.img_size_x_pixels
             assert tile.end_pixel_y < tif_wrapper.img_size_y_pixels
             is_rectangle_within_field = field_area.is_rectangle_within_field(tile=tile)

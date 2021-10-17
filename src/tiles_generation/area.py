@@ -32,8 +32,8 @@ class BaseArea:
         shape = tif_wrapper.img.shape[:2]
         self.mask_img = np.zeros(shape, np.uint8)
         polygons, interiors = self._get_polygons_xy()
-        yx_pixel_contours = tif_wrapper.transform_polygons_to_yx_pixels(polygons)
-        yx_pixel_interiors = tif_wrapper.transform_polygons_to_yx_pixels(interiors)
+        yx_pixel_contours = tif_wrapper.transform_polygons_epsg_to_yx_pixels(polygons)
+        yx_pixel_interiors = tif_wrapper.transform_polygons_epsg_to_yx_pixels(interiors)
         cv2.fillPoly(self.mask_img, pts=yx_pixel_contours, color=self.mask_color)
         cv2.fillPoly(self.mask_img, pts=yx_pixel_interiors, color=0)
 
@@ -52,6 +52,11 @@ class FieldArea(BaseArea):
     def create_mask_for_tif(self, tif_wrapper: GeoTiffImageWrapper, erode_contour_size: int = 0, show=False):
         erode_contour_size = config.FIELD_BORDER_EROSION_SIZE_PIXELS
         super().create_mask_for_tif(tif_wrapper=tif_wrapper, erode_contour_size=erode_contour_size, show=show)
+
+    def apply_mask_on_img(self, img):
+        img = cv2.bitwise_and(src1=img, src2=img, mask=self.mask_img)
+        # util.show_small_img(tif_wrapper.img, 'tif_wrapper.img ')
+        return img
 
     def is_rectangle_within_field(self, tile: Tile):
         corners_within_field = 0
@@ -78,14 +83,14 @@ class DamageArea(BaseArea):
         super().__init__(file_path, mask_color=config.COLOR_VALUE__DAMAGED_AREA_ON_TILE_MASK)
 
     @staticmethod
-    def _get_point_pixel_coordinates(point_damage_file_path: str, tif_wrapper):
+    def _get_point_pixel_coordinates(point_damage_file_path: str, tif_wrapper: GeoTiffImageWrapper):
         point_damage_data = geopandas.read_file(point_damage_file_path)
         points = point_damage_data.to_numpy()
         points_pixel_coordinates = []
         for point_list in points:
             point = point_list[0]
             xy = [point.xy[0][0]], [point.xy[1][0]]
-            points_pixel_coordinates += tif_wrapper.transform_polygons_to_yx_pixels([xy])
+            points_pixel_coordinates += tif_wrapper.transform_polygons_epsg_to_yx_pixels([xy])
         return points_pixel_coordinates
 
     def _create_mask_for_point_damages(self, point_damage_file_path: str, tif_wrapper: GeoTiffImageWrapper):
