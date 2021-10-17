@@ -45,6 +45,9 @@ class Tile:
         cv2.imwrite(img=field_roi_bgr, filename=tile_img_file_path)
         cv2.imwrite(img=damage_roi, filename=tile_mask_file_path)
 
-    def set_mask_on_full_img(self, full_img, roi_img):
-        full_img[self.roi_slice] = roi_img
-
+    def set_mask_on_full_img(self, full_img, roi_img, with_overlap=False):
+        if with_overlap:
+            full_or_roi_slice = cv2.bitwise_or(full_img[self.roi_slice], roi_img)
+            full_img[self.roi_slice] = full_or_roi_slice
+        else:
+            full_img[self.roi_slice] = roi_img

@@ -32,31 +32,26 @@ def main():
     print(f'All subdirectories processed!')
 
 
+from skimage import io
+import skimage
+
+
 def process_subdirectory(data_dir_path, model):
     tif_wrapper = GeoTiffImageWrapper(file_path=os.path.join(data_dir_path, config.TIF_FILE_NAME))
     field_area = FieldArea(file_path=os.path.join(data_dir_path, config.FIELD_AREA_FILE_NAME))
     field_area.create_mask_for_tif(tif_wrapper, show=False)
     tif_wrapper.img = field_area.apply_mask_on_img(tif_wrapper.img)
 
-    damage_area = DamageArea(file_path=os.path.join(data_dir_path, config.DAMAGE_AREA_FILE_NAME))
-    damage_area.create_mask_for_tif_and_area(
-        tif_wrapper=tif_wrapper,
-        field_area=field_area,
-        point_damage_file_path=os.path.join(data_dir_path, config.POINT_DAMAGE_AREA_FILE_NAME),
-        show=False)
-
-    # TODO - change stride to samler value. Do not use border of tile to set results
-    # or maybe just add smole overlap, and add binary or during setting the result
-
-    x_bins_number = (tif_wrapper.img_size_x_pixels - config.TILE_SIZE) // config.TILE_SIZE + 1
-    y_bins_number = (tif_wrapper.img_size_y_pixels - config.TILE_SIZE) // config.TILE_SIZE + 1
+    stride = int(config.TILE_SIZE * 0.9)  # slightly overlap tiles, because segmentation on the edges is not reliable
+    x_bins_number = (tif_wrapper.img_size_x_pixels - config.TILE_SIZE) // stride + 1
+    y_bins_number = (tif_wrapper.img_size_y_pixels - config.TILE_SIZE) // stride + 1
     total_tiles = x_bins_number * y_bins_number
 
     full_predicted_img = np.zeros(tif_wrapper.img.shape[:2], np.uint8)
 
     for y_bin_number in range(y_bins_number):
         for x_bin_number in range(x_bins_number):
-            tile = Tile(x_bin_number=x_bin_number, y_bin_number=y_bin_number, stride=config.TILE_SIZE)
+            tile = Tile(x_bin_number=x_bin_number, y_bin_number=y_bin_number, stride=stride)
             assert tile.end_pixel_x < tif_wrapper.img_size_x_pixels
             assert tile.end_pixel_y < tif_wrapper.img_size_y_pixels
             is_rectangle_within_field = field_area.is_rectangle_within_field(tile=tile)
@@ -67,22 +62,23 @@ def process_subdirectory(data_dir_path, model):
             if x_bin_number == (x_bins_number - 1):
                 print(f" Processing tile {tile_no} / {total_tiles} [{tile_no / total_tiles * 100:.2f}%]")
 
-            if not is_rectangle_within_field:  # TODO remove
-                continue
+            # if not is_rectangle_within_field:  # TODO remove
+            #     continue
+            # if y_bin_number % 30 != 0 or x_bin_number % 30 != 0:
+            #     continue
 
-            tile_img_bgr = tile.get_field_roi_img(tif_wrapper.img)
-            tile_img_rgb = cv2.cvtColor(tile_img_bgr, cv2.COLOR_BGR2RGB)
-            # tile_img_rgb = tile_img_bgr
-
-            # util.show_small_img(damage_area.mask_img[tile.roi_slice], 'damage_img[self.roi_slice]')
+            tile_img_rgb = tile.get_field_roi_img(tif_wrapper.img)  # already rgb!
             predicted_mask_binary = model.predict_damage(tile_img_rgb, show=False)
 
-            tile.set_mask_on_full_img(full_img=full_predicted_img, roi_img=predicted_mask_binary)
-
-    # util.show_small_img(full_predicted_img, 'full_predicted_img')
-    # cv2.waitKey()
+            tile.set_mask_on_full_img(full_img=full_predicted_img,
+                                      roi_img=predicted_mask_binary,
+                                      with_overlap=True)
 
     full_predicted_img = field_area.apply_mask_on_img(full_predicted_img)
+    damaged_pixels = DamageArea.calculate_damaged_pixels_count(full_predicted_img)
+    print(f'Total calculated damage area: {damaged_pixels * tif_wrapper.get_square_meters_per_pixel} m^2')
+
+    del field_area
     geo_data_frame = get_geo_data_frame(full_predicted_img=full_predicted_img, tif_wrapper=tif_wrapper)
     geo_data_frame.to_file(os.path.join(data_dir_path, config.DAMAGE_AREA_FROM_NN_FILE_NAME), driver="GPKG")
 

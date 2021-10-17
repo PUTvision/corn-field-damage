@@ -112,7 +112,7 @@ class DamageArea(BaseArea):
         self._create_mask_for_point_damages(
             point_damage_file_path=point_damage_file_path, tif_wrapper=tif_wrapper)
 
-        damaged_area_m2 = self.calculate_damaged_pixels_count() * tif_wrapper.get_square_meters_per_pixel
+        damaged_area_m2 = self.calculate_damaged_pixels_count(self.mask_img) * tif_wrapper.get_square_meters_per_pixel
         total_field_size = cv2.countNonZero(field_area.mask_img) * tif_wrapper.get_square_meters_per_pixel
         print(f'Damaged area = {damaged_area_m2:.3f} m^2')
         print(f'Total field area = {total_field_size:.3f} m^2')
@@ -129,10 +129,11 @@ class DamageArea(BaseArea):
 
         util.show_small_img(self.mask_img, name='damage', show=show)
 
-    def calculate_damaged_pixels_count(self):
-        if self.mask_img is None:
+    @classmethod
+    def calculate_damaged_pixels_count(cls, mask_img):
+        if mask_img is None:
             raise Exception("Mask not create yet!")
         # unique, counts = np.unique(self.mask_img, return_counts=True)
-        damaged_pixels = np.where(self.mask_img == config.COLOR_VALUE__DAMAGED_AREA_ON_TILE_MASK)
+        damaged_pixels = np.where(mask_img == config.COLOR_VALUE__DAMAGED_AREA_ON_TILE_MASK)
         damaged_pixels_count = damaged_pixels[0].shape[0]
         return damaged_pixels_count

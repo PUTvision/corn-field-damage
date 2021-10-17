@@ -5,7 +5,8 @@ from typing import Tuple, List
 import numpy as np
 import cv2
 from geotiff import GeoTiff
-from skimage.io import imread
+from skimage import io
+import skimage
 
 import util
 from tiles_generation import config
@@ -54,7 +55,7 @@ class GeoTiffImageWrapper:
     def load_and_scale_img(self, file_path):
         # self.img = cv2.imread(file_path)  # opencv fails to load image larger than a few GB
         # assert self.img.data
-        img = imread(file_path)[:, :, :3].copy()
+        img = skimage.io.imread(file_path)[:, :, :3].copy()
         # assume x and y resolutions are equal
         x_resolution = self.coord_bounding_box.get_x_distance_in_meters() / (img.shape[1] - 1)
         print(f'TIF image resolution x before scaling: {x_resolution:.3f} [meters per pixel]')
