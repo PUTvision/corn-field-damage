@@ -4,8 +4,8 @@ hostname = platform.node()
 if hostname == 'przemek-PC':
     BASE_DATA_DIR_PATH = "/media/data/nextcloud/Wspoldzielone/PP/corn/raw"  # directory with data as on google drive
     BASE_OUTPUT_DATA_DIR_PATH = "/media/data/local/corn/processed"  # base directory where to save the processed data
-    # MODEL_PATH = '/media/data/local/corn/processed_stride768/model_cpu__trained_without_10ha'
-    MODEL_PATH = '/media/data/local/corn/processed_stride768/model_cpu'
+    MODEL_PATH = '/media/data/local/corn/processed_stride768/model_cpu__trained_without_10ha'
+    # MODEL_PATH = '/media/data/local/corn/processed_stride768/model_cpu'
 elif hostname == 'przemek-notebook':
     BASE_DATA_DIR_PATH = "/media/przemek/data/corn_data/raw"  # directory with data as on google drive
     BASE_OUTPUT_DATA_DIR_PATH = "/media/przemek/data/corn_data/processed"  # base directory where to save the processed data
