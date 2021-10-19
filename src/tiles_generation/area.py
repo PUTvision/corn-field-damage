@@ -21,6 +21,8 @@ class BaseArea:
         polygons = []
         interiors = []
         for shapely_polygon in self.data.to_numpy():
+            if shapely_polygon[0] is None:
+                continue  # empty polygon on map, ignore it then
             area_polygon = shapely_polygon[0][0]
             for interior in area_polygon.interiors:
                 interiors.append(interior.coords.xy)

@@ -22,7 +22,7 @@ class FieldDamageSegmentationModel:
         self.model.eval()
         # print(self.model)
 
-    def predict_damage(self, img, show=True):
+    def predict_damage(self, img, show=False, debug=False):
         util.show_small_img(img, 'img', show=show)
         img = img.astype('float32')
         img /= 255
@@ -33,10 +33,19 @@ class FieldDamageSegmentationModel:
             #     model_output = model(img_batch.to(DEVICE))
             model_output = self.model(img_batch)
 
-        predicted_mask = model_output[0][1].numpy() * 255
-        predicted_mask = predicted_mask.astype(np.uint8)
-        util.show_small_img(predicted_mask, 'predicted_mask', show=show)
-        _, predicted_mask_binary = cv2.threshold(predicted_mask, thresh=255//2, maxval=255, type=cv2.THRESH_BINARY)
+        predicted_mask_damage = model_output[0][1].numpy() * 255
+        predicted_mask_damage = predicted_mask_damage.astype(np.uint8)
+
+        if debug:
+            predicted_mask_healthy = model_output[0][0].numpy() * 255
+            predicted_mask_healthy = predicted_mask_healthy.astype(np.uint8)
+            util.show_small_img(predicted_mask_healthy, 'predicted_mask_healthy', show=show)
+
+            predicted_mask_outside_field = model_output[0][2].numpy() * 255
+            predicted_mask_outside_field = predicted_mask_outside_field.astype(np.uint8)
+            util.show_small_img(predicted_mask_outside_field, 'predicted_mask_outside_field', show=show)
+
+        util.show_small_img(predicted_mask_damage, 'predicted_mask_damage', show=show)
+        _, predicted_mask_binary = cv2.threshold(predicted_mask_damage, thresh=255//2, maxval=255, type=cv2.THRESH_BINARY)
         util.show_small_img(predicted_mask_binary, 'predicted_mask_binary', show=show)
-        cv2.waitKey()
         return predicted_mask_binary

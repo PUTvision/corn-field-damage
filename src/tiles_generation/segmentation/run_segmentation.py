@@ -32,10 +32,6 @@ def main():
     print(f'All subdirectories processed!')
 
 
-from skimage import io
-import skimage
-
-
 def process_subdirectory(data_dir_path, model):
     tif_wrapper = GeoTiffImageWrapper(file_path=os.path.join(data_dir_path, config.TIF_FILE_NAME))
     field_area = FieldArea(file_path=os.path.join(data_dir_path, config.FIELD_AREA_FILE_NAME))
