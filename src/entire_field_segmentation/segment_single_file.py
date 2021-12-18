@@ -1,6 +1,6 @@
 import cv2
 
-from file_segmentation.model import FieldDamageSegmentationModel
+from entire_field_segmentation.model import FieldDamageSegmentationModel
 from tiles_generation.common import config, util
 
 

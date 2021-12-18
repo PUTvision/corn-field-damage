@@ -1,7 +1,9 @@
 import os
+import shutil
 
 os.environ["OPENCV_IO_MAX_IMAGE_PIXELS"] = pow(2, 40).__str__()  # increase limit of pixels (2^30), before importing cv2
 import cv2
+import git
 
 from common import config
 from common.area import FieldArea, DamageArea
@@ -47,6 +49,15 @@ def process_subdirectory(data_dir_path, output_dir_path):
                       tile_output_dir=output_dir_path)
 
 
+def copy_config_file(output_dir_path):
+    dst_flle_path = os.path.join(output_dir_path, 'config.py')
+    shutil.copy2(src=config.CONFIG_FILE_PATH, dst=dst_flle_path)
+    repo = git.Repo(search_parent_directories=True)
+    sha = repo.head.object.hexsha
+    with open(dst_flle_path, "a") as file_object:
+        file_object.write(f"\n\n# commit_hash = {sha}")
+
+
 def main():
     subdirectories = config.SUBDIRECTORIES_TO_PROCESS
     for i, subdirectory_name in enumerate(subdirectories):
@@ -56,6 +67,7 @@ def main():
         subdirectory_data_path = os.path.join(config.BASE_DATA_DIR_PATH, subdirectory_name)
         output_dir_path = os.path.join(config.BASE_OUTPUT_DATA_DIR_PATH, subdirectory_name)
         os.makedirs(output_dir_path, exist_ok=True)
+        copy_config_file(output_dir_path)
 
         process_subdirectory(
             data_dir_path=subdirectory_data_path,

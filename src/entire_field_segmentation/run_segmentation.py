@@ -6,7 +6,7 @@ import cv2
 import geopandas
 import numpy as np
 
-from file_segmentation.model import FieldDamageSegmentationModel
+from entire_field_segmentation.model import FieldDamageSegmentationModel
 from tiles_generation.common import config, util
 from tiles_generation.common.area import FieldArea, DamageArea
 from tiles_generation.common.geo_tiff_image_wrapper import GeoTiffImageWrapper

@@ -1,21 +1,23 @@
 import enum
 import platform
+import os
 
+
+CONFIG_FILE_PATH = os.path.abspath(__file__)
+
+
+BASE_DATA_DIR_PATH = None
+BASE_OUTPUT_DATA_DIR_PATH = None
 
 hostname = platform.node()
 if hostname == 'przemek-PC':
-    # BASE_DATA_DIR_PATH = "/media/data/nextcloud/Wspoldzielone/PP/corn/raw"  # directory with data as on google drive
-    BASE_DATA_DIR_PATH = "/media/data/nextcloud/Wspoldzielone/PP/corn/raw"  # directory with data as on google drive
-    # BASE_OUTPUT_DATA_DIR_PATH = "/media/data/local/corn/processed_stride1152_v2"  # base directory where to save the processed data
-    BASE_OUTPUT_DATA_DIR_PATH = "/tmp/testcorn"  # base directory where to save the processed data
-    # MODEL_PATH = '/media/data/local/corn/processed_stride768/model_cpu__trained_without_10ha'
-    MODEL_PATH = '/media/data/local/corn/processed_stride768_v2/model_cpu_deeplabv3'
-elif hostname == 'przemek-notebook':
-    BASE_DATA_DIR_PATH = "/media/przemek/data/corn_data/raw"  # directory with data as on google drive
-    BASE_OUTPUT_DATA_DIR_PATH = "/media/przemek/data/corn_data/processed"  # base directory where to save the processed data
-    # MODEL_PATH = '/home/przemek/Desktop/model_cpu'
-else:
-    raise Exception("Error! Please specify BASE_DATA_DIR_PATH and BASE_OUTPUT_DATA_DIR_PATH in config.py!")
+    BASE_DATA_DIR_PATH = "/media/data/nextcloud/Wspoldzielone/PP/corn/raw"  # directory with data as on cloud
+    BASE_OUTPUT_DATA_DIR_PATH = "/media/data/local/corn/tiles/"  # base directory where to save the processed data
+
+
+if not (BASE_DATA_DIR_PATH or BASE_OUTPUT_DATA_DIR_PATH):
+    raise Exception(f"Error! Please specify BASE_DATA_DIR_PATH and BASE_OUTPUT_DATA_DIR_PATH in config.py!\n"
+                    f"({os.path.abspath(__file__)})")
 
 
 TIF_FILE_NAME = 'fotomapa.tif'
@@ -23,20 +25,26 @@ FIELD_AREA_FILE_NAME = 'obszar.gpkg'
 DAMAGE_AREA_FILE_NAME = 'szkody_placowe.gpkg'
 POINT_DAMAGE_AREA_FILE_NAME = 'szkody_punktowe.gpkg'
 DAMAGE_AREA_FROM_NN_FILE_NAME = 'szkody_placowe_nn.gpkg'
+NVDI_FILE_PATH = 'NVDI_index_sentera_single_precision_ndvi.tif'
+
 
 SUBDIRECTORIES_TO_PROCESS = [
-    # 'Kukurydza_RGB_9_ha',
-    # 'Kukurydza_RGB_134_ha',
 
-    "kukurydza_5_ha",
-    # "kukurydza_10_ha",
-    # "kukurydza_11_ha",
-    # "kukurydza_13_ha",
-    # "kukurydza_15_ha",
-    # "kukurydza_18_ha",
-    # "kukurydza_25_ha",
-    # "kukurydza_38_ha",
-    # "kukurydza_60_ha",
+    # 'Kukurydza_RGB_NDVI_50_ha',
+    # 'Kukurydza_RGB_25_ha',
+    # "Kukurydza_RGB_25.5_ha",
+    # "Kukurydza_RGB_9_ha",
+    # 'Kukurydza_RGB_66_ha',
+
+    # "kukurydza_5_ha",
+    "kukurydza_10_ha",
+    "kukurydza_11_ha",
+    "kukurydza_13_ha",
+    "kukurydza_15_ha",
+    "kukurydza_18_ha",
+    "kukurydza_25_ha",
+    "kukurydza_38_ha",
+    "kukurydza_60_ha",
 ]
 
 POINT_DAMAGE_RADIUS_METERS = 1.5 / 2  # ~ 1.5m diameter on average - 50 pixels
