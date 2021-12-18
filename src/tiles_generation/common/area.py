@@ -5,10 +5,10 @@ import geopandas
 import numpy as np
 import cv2
 
-import config
-import util
-from geo_tiff_image_wrapper import GeoTiffImageWrapper
-from tile import Tile
+from tiles_generation.common import config
+from tiles_generation.common import util
+from tiles_generation.common.geo_tiff_image_wrapper import GeoTiffImageWrapper
+from tiles_generation.common.tile import Tile
 
 
 class BaseArea:

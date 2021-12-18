@@ -3,15 +3,10 @@ import os
 os.environ["OPENCV_IO_MAX_IMAGE_PIXELS"] = pow(2, 40).__str__()  # increase limit of pixels (2^30), before importing cv2
 import cv2
 
-import geopandas
-import numpy as np
-
-from tiles_generation import util
-from tiles_generation.segmentation.model import FieldDamageSegmentationModel
-import config
-from area import FieldArea, DamageArea
-from geo_tiff_image_wrapper import GeoTiffImageWrapper
-from tile import Tile
+from common import config
+from common.area import FieldArea, DamageArea
+from common.geo_tiff_image_wrapper import GeoTiffImageWrapper
+from common.tile import Tile
 
 
 def process_subdirectory(data_dir_path, output_dir_path):

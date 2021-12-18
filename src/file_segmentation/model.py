@@ -3,7 +3,7 @@ import segmentation_models_pytorch as smp
 import torch
 import numpy as np
 
-import util
+from tiles_generation.common import util
 
 
 class FieldDamageSegmentationModel:
@@ -11,10 +11,10 @@ class FieldDamageSegmentationModel:
 
     def __init__(self, model_file_path):
         # copied from jupyter notebook for training
-        self.model = smp.Unet(
-            encoder_name="resnet34",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-            encoder_weights="imagenet",  # use `imagenet` pre-trained weights for encoder initialization
-            in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+        self.model = smp.DeepLabV3(
+            encoder_name="efficientnet-b0",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
             classes=self.NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
             activation='softmax2d',  # ?
         )

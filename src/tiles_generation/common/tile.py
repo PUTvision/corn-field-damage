@@ -3,7 +3,7 @@ import os
 import numpy as np
 import cv2
 
-import config
+from tiles_generation.common import config
 
 
 class Tile:

@@ -6,12 +6,11 @@ import cv2
 import geopandas
 import numpy as np
 
-from tiles_generation import util
-from tiles_generation.segmentation.model import FieldDamageSegmentationModel
-import config
-from area import FieldArea, DamageArea
-from geo_tiff_image_wrapper import GeoTiffImageWrapper
-from tile import Tile
+from file_segmentation.model import FieldDamageSegmentationModel
+from tiles_generation.common import config, util
+from tiles_generation.common.area import FieldArea, DamageArea
+from tiles_generation.common.geo_tiff_image_wrapper import GeoTiffImageWrapper
+from tiles_generation.common.tile import Tile
 
 
 def main():

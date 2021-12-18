@@ -8,8 +8,8 @@ from geotiff import GeoTiff
 from skimage import io
 import skimage
 
-import util
-from tiles_generation import config
+from tiles_generation.common import config
+from tiles_generation.common import util
 
 
 @dataclass

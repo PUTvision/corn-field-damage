@@ -251,3 +251,9 @@ cython_debug/
 .idea/
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,python
+
+
+
+# TODO - extract model
+old_testing/
+src/model_training/segmentation_pytorch-main/

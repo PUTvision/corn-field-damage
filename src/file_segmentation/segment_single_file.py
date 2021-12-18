@@ -1,12 +1,7 @@
-import os
-
-import geopandas
-import numpy as np
 import cv2
 
-from tiles_generation import util
-from tiles_generation.segmentation.model import FieldDamageSegmentationModel
-import config
+from file_segmentation.model import FieldDamageSegmentationModel
+from tiles_generation.common import config, util
 
 
 def main():
