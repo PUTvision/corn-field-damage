@@ -37,7 +37,8 @@ class CoordinatesRect:
 
 
 class GeoTiffImageWrapper:
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, number_of_channels: int = 3):
+        self.number_of_channels = number_of_channels
         self.geo_tiff = GeoTiff(file_path)
         assert self.geo_tiff.crs_code == 32633  # Processing supports only EPSG32633
         self.coord_bounding_box = CoordinatesRect.from_2_tuples(self.geo_tiff.tif_bBox)
@@ -55,7 +56,11 @@ class GeoTiffImageWrapper:
     def load_and_scale_img(self, file_path):
         # self.img = cv2.imread(file_path)  # opencv fails to load image larger than a few GB
         # assert self.img.data
-        img = skimage.io.imread(file_path)[:, :, :3].copy()
+        if self.number_of_channels > 1:
+            img = skimage.io.imread(file_path)[:, :, :self.number_of_channels].copy()
+        else:
+            img = skimage.io.imread(file_path)[..., np.newaxis].copy()
+
         # assume x and y resolutions are equal
         x_resolution = self.coord_bounding_box.get_x_distance_in_meters() / (img.shape[1] - 1)
         print(f'TIF image resolution x before scaling: {x_resolution:.3f} [meters per pixel]')
@@ -63,6 +68,9 @@ class GeoTiffImageWrapper:
         scaling_factor = x_resolution / expected_resolution
         new_shape = int(img.shape[1] * scaling_factor), int(img.shape[0] * scaling_factor)
         img_scaled = cv2.resize(img, dsize=new_shape, interpolation=cv2.INTER_CUBIC)
+
+        if self.number_of_channels == 1:
+            img_scaled = img_scaled[..., np.newaxis]
 
         return img_scaled
 
@@ -127,5 +135,40 @@ class GeoTiffImageWrapper:
         return polygons_epsg
 
     def apply_mask(self, mask_img, show=False):
+        # rgb files with 3 channels are uint8
         self.img = cv2.bitwise_and(self.img, self.img, mask=mask_img)
         util.show_small_img(img=self.img, name='field_masked', show=show)
+
+
+class GeoTiffImageWrapperNDVI(GeoTiffImageWrapper):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+    def apply_mask(self, mask_img, show=False):
+        # one channel NDVI file is float32
+        self.img = cv2.copyTo(self.img, mask_img)
+        util.show_small_img(img=self.img, name='field_masked', show=show)
+
+    def transform_to_rgb_tif_wrapper_pixels_space(self, tif_wrapper: GeoTiffImageWrapper):
+        cb = self.coord_bounding_box
+        mapped_corners = tif_wrapper.transform_polygons_epsg_to_yx_pixels(
+            [[
+                [cb.x_left,  cb.x_right,  cb.x_right],
+                [cb.y_upper, cb.y_upper,  cb.y_bottom],
+            ]])
+
+        old_shape = self.img.shape[:2]
+        max_old_x = old_shape[1] - 1
+        max_old_y = old_shape[0] - 1
+
+        new_shape = tif_wrapper.img.shape[:2]
+
+        mc = mapped_corners[0]
+        pts1 = np.float32([ [0,        0       ], [max_old_x, 0],       [max_old_x, max_old_y] ])
+        pts2 = np.float32([ [mc[0][0], mc[0][1]], [mc[1][0], mc[1][1]], [mc[2][0], mc[2][1]]   ])
+        M = cv2.getAffineTransform(pts1, pts2)
+        dst = cv2.warpAffine(self.img, M, new_shape[::-1])
+        self.img = dst
+
+
+

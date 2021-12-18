@@ -1,6 +1,8 @@
 import os
 import shutil
 
+from tiles_generation.common.geo_tiff_image_wrapper import GeoTiffImageWrapperNDVI
+
 os.environ["OPENCV_IO_MAX_IMAGE_PIXELS"] = pow(2, 40).__str__()  # increase limit of pixels (2^30), before importing cv2
 import cv2
 import git
@@ -22,7 +24,16 @@ def process_subdirectory(data_dir_path, output_dir_path):
         field_area=field_area,
         point_damage_file_path=os.path.join(data_dir_path, config.POINT_DAMAGE_AREA_FILE_NAME),
         show=False)
+
     tif_wrapper.apply_mask(field_area.mask_img)
+
+    if 'NDVI' in data_dir_path:
+        ndvi_wrapper = GeoTiffImageWrapperNDVI(file_path=os.path.join(data_dir_path, config.NVDI_FILE_PATH),
+                                           number_of_channels=1)
+        ndvi_wrapper.transform_to_rgb_tif_wrapper_pixels_space(tif_wrapper)
+        ndvi_wrapper.apply_mask(field_area.mask_img)
+    else:
+        ndvi_wrapper = None
 
     x_bins_number = (tif_wrapper.img_size_x_pixels - config.TILE_SIZE) // config.TILE_STRIDE + 1
     y_bins_number = (tif_wrapper.img_size_y_pixels - config.TILE_SIZE) // config.TILE_STRIDE + 1
@@ -46,7 +57,9 @@ def process_subdirectory(data_dir_path, output_dir_path):
 
             tile.save(damage_img=damage_area.mask_img,
                       field_img=tif_wrapper.img,
-                      tile_output_dir=output_dir_path)
+                      tile_output_dir=output_dir_path,
+                      ndvi_wrapper=ndvi_wrapper,
+                      )
 
 
 def copy_config_file(output_dir_path):

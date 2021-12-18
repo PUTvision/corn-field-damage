@@ -29,27 +29,30 @@ NVDI_FILE_PATH = 'NVDI_index_sentera_single_precision_ndvi.tif'
 
 
 SUBDIRECTORIES_TO_PROCESS = [
-
-    # 'Kukurydza_RGB_NDVI_50_ha',
-    # 'Kukurydza_RGB_25_ha',
+    # "Kukurydza_RGB_25_ha",
     # "Kukurydza_RGB_25.5_ha",
     # "Kukurydza_RGB_9_ha",
     # 'Kukurydza_RGB_66_ha',
-
+    #
     # "kukurydza_5_ha",
-    "kukurydza_10_ha",
-    "kukurydza_11_ha",
-    "kukurydza_13_ha",
-    "kukurydza_15_ha",
-    "kukurydza_18_ha",
-    "kukurydza_25_ha",
-    "kukurydza_38_ha",
-    "kukurydza_60_ha",
+    # "kukurydza_10_ha",
+    # "kukurydza_11_ha",
+    # "kukurydza_13_ha",
+    # "kukurydza_15_ha",
+    # "kukurydza_18_ha",
+    # "kukurydza_25_ha",
+    # "kukurydza_38_ha",
+    # "kukurydza_60_ha",
+
+    # only for NVDI training (not for normal training)
+    'Kukurydza_RGB_NDVI_50_ha',
 ]
 
 POINT_DAMAGE_RADIUS_METERS = 1.5 / 2  # ~ 1.5m diameter on average - 50 pixels
 FIELD_BORDER_EROSION_SIZE_PIXELS = 70  # [in pixels] Erode the field border, because sometimes it goes too far
-FINAL_SCALED_IMAGE_RESOLUTION__METER_PER_PIXEL = 0.03  # how many meters for one pixel we want in our scaled image
+
+# FINAL_SCALED_IMAGE_RESOLUTION__METER_PER_PIXEL = 0.03  # how many meters for one pixel we want in our scaled image
+FINAL_SCALED_IMAGE_RESOLUTION__METER_PER_PIXEL = 0.038  # Only for the NDVI file, because it is native resolution and we need to scale down the image due to max cv2 image size for transofrmation
 
 
 class TileSizeType(enum.Enum):
