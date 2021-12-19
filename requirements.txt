@@ -1,2 +1,2 @@
 -r tiles_generation/requirements.txt
--r model_training/requirements.txt
+-r model_training_v2/requirements.txt
