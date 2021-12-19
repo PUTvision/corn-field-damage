@@ -107,7 +107,40 @@ def get_model_with_params(model_type: ModelType) -> tuple:
 
         #     params.mask_scalling_factor = 4.0
         #     params.metrics_activation = 'softmax2d'
-        #     patams.loss_fnc = smp.utils.losses.CrossEntropyLoss()
+        #     patams.loss_fnc = smp.utils.losses.CrossEntropyLoss()  # without soft2d_out and with activation
+
+
+        # SOME old segformer - not working?
+        # from mmseg.models import build_segmentor
+
+        # norm_cfg = dict(type='SyncBN', requires_grad=True)
+
+        # cfg_model = dict(
+        #     type='EncoderDecoder',
+        #     pretrained='/home/przemek/Projects/pp/corn-field-damage/tmp2/SegFormer/pretrained/mit_b1.pth',
+        #     backbone=dict(
+        #         type='mit_b1',
+        #         style='pytorch'),
+        #     decode_head=dict(
+        #         type='SegFormerHead',
+        #         in_channels=[64, 128, 320, 512],
+        #         in_index=[0, 1, 2, 3],
+        #         feature_strides=[4, 8, 16, 32],
+        #         channels=128,
+        #         dropout_ratio=0.1,
+        #         # num_classes=150,  ## PA: changed
+        #         num_classes=3,
+        #         norm_cfg=norm_cfg,
+        #         align_corners=False,
+        #         decoder_params=dict(embed_dim=256),
+        #         loss_decode=dict(type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+        # )
+
+        # model = build_segmentor(
+        #     cfg_model,
+        #     train_cfg=None,
+        #     test_cfg=None)
+
     else:
         raise Exception(f"Unknown model type: {model_type.name}")
 

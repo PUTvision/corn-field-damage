@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from torch import nn, optim
 import torch
 import cv2
 import albumentations as A
 import numpy as np
 
 import dataset_preparation
+from dataset_preparation import DEFAULT_DATASET_SPLIT_FILE_NAME
 
 
 @dataclass
@@ -48,6 +48,9 @@ class CornFieldDamageDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.mask_file_paths)
+
+    def img_path_at_index(self, idx):
+        return self.img_file_paths[idx]
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
@@ -95,8 +98,10 @@ class CornFieldDamageDataset(torch.utils.data.Dataset):
         return transform
 
 
-def get_train_valid_test_loaders(base_dir_path, batch_size, mask_scalling):
-    tile_paths_train, tile_paths_valid, tile_paths_test = dataset_preparation.load_tiles_dataset_split(base_dir_path)
+def get_train_valid_test_loaders(base_dir_path, batch_size, mask_scalling, dataset_name=DEFAULT_DATASET_SPLIT_FILE_NAME):
+    tile_paths_train, tile_paths_valid, tile_paths_test = dataset_preparation.load_tiles_dataset_split(
+        base_dir_path=base_dir_path,
+        dataset_name=dataset_name)
 
     uncropped_tile_size = int(
         base_dir_path[base_dir_path.rfind('stride_') + len('stride_'):].replace('/', '').replace('\\', ''))
@@ -132,7 +137,7 @@ def get_train_valid_test_loaders(base_dir_path, batch_size, mask_scalling):
 
 
 def main():
-    get_train_valid_test_loaders(base_dir_path='/media/data/local/corn/new/tiles_stride_768/', batch_size=1)
+    get_train_valid_test_loaders(base_dir_path='/media/data/local/corn/new/tiles_stride_768/', batch_size=1, mask_scalling=None)
 
 
 if __name__ == '__main__':

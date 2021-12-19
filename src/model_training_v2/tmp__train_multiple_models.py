@@ -22,6 +22,21 @@ print(f'DEVICE = {DEVICE}')
 
 
 TILES_BASE_DIR = "/media/data/local/corn/processed_stride768_v2"
+UNCROPPED_TILE_SIZE = (512 + 256)  # in pixels
+CROPPED_TILE_SIZE = 512
+
+# done
+# TILES_BASE_DIR = "/media/data/local/corn/processed_stride384_v2"
+# UNCROPPED_TILE_SIZE = (512 + 256) // 2  # in pixels
+# CROPPED_TILE_SIZE = 512 // 2
+
+# to do
+# TILES_BASE_DIR = "/media/data/local/corn/processed_stride1152_v2"
+# UNCROPPED_TILE_SIZE = (512 + 256) // 2 * 3  # in pixels
+# CROPPED_TILE_SIZE = 512 // 2 * 3
+
+
+
 SUBDIRECTORIES_TO_PROCESS_TRAIN = [
     "kukurydza_5_ha",
     "kukurydza_10_ha",
@@ -45,9 +60,6 @@ SUBDIRECTORIES_TO_PROCESS_TEST = [
 
 # UNCROPPED_TILE_SIZE = (512 + 256)  # in pixels
 # CROPPED_TILE_SIZE = 512
-
-UNCROPPED_TILE_SIZE = (512 + 256)  # in pixels
-CROPPED_TILE_SIZE = 512
 
 
 CROP_TILE_MARGIN = (UNCROPPED_TILE_SIZE - CROPPED_TILE_SIZE) // 2
@@ -205,15 +217,14 @@ valid_dataset = CornFieldDamageDataset(img_file_paths=tile_paths_valid.img_paths
 test_dataset = CornFieldDamageDataset(img_file_paths=tile_paths_test.img_paths,
                                       mask_file_paths=tile_paths_test.mask_paths, augment=False)
 
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=3, shuffle=True, drop_last=True)
-valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=3, shuffle=True, drop_last=True)
-test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=3, shuffle=True, drop_last=True)
-
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=2, shuffle=True, drop_last=True)
+valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=2, shuffle=True, drop_last=True)
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=2, shuffle=True, drop_last=True)
 
 architectures_encoders_weights_vec = [
     # {'architecture': smp.Unet, 'encoder': "efficientnet-b0", 'weights': 'imagenet'},
     # {'architecture': smp.UnetPlusPlus, 'encoder': "efficientnet-b0", 'weights': 'imagenet'},
-    # {'architecture': smp.DeepLabV3, 'encoder': "efficientnet-b0", 'weights': 'imagenet'},
+    # {'architecture': smp.DeepLabV3, 'encoder': "efficientnet-b0", 'weights': 'i magenet'},
     # {'architecture': smp.DeepLabV3Plus, 'encoder': "efficientnet-b0", 'weights': 'imagenet'},
     # {'architecture': smp.PAN, 'encoder': "efficientnet-b0", 'weights': 'imagenet'},
     # {'architecture': smp.FPN, 'encoder': "efficientnet-b0", 'weights': 'imagenet'},
@@ -225,13 +236,30 @@ architectures_encoders_weights_vec = [
     # {'architecture': smp.Unet, 'encoder': "resnet18", 'weights': 'imagenet'},
     # {'architecture': smp.Unet, 'encoder': "vgg11", 'weights': 'imagenet'},
 
-    # TODO:
+
+
+
     # {'architecture': smp.Unet, 'encoder': "efficientnet-b4", 'weights': 'imagenet'},
     # {'architecture': smp.Unet, 'encoder': "efficientnet-b1", 'weights': 'imagenet'},
     # {'architecture': smp.Unet, 'encoder': "efficientnet-b2", 'weights': 'imagenet'},
     # {'architecture': smp.Unet, 'encoder': "efficientnet-b5", 'weights': 'imagenet'},
 
+
+
+    # {'architecture': smp.UnetPlusPlus, 'encoder': "efficientnet-b0", 'weights': 'imagenet'},  // done
+    # {'architecture': smp.UnetPlusPlus, 'encoder': "efficientnet-b1", 'weights': 'imagenet'},
+    # {'architecture': smp.UnetPlusPlus, 'encoder': "efficientnet-b2", 'weights': 'imagenet'},
+    # {'architecture': smp.UnetPlusPlus, 'encoder': "efficientnet-b3", 'weights': 'imagenet'},
+    # {'architecture': smp.UnetPlusPlus, 'encoder': "mobilenet_v2", 'weights': 'imagenet'},
+    # {'architecture': smp.UnetPlusPlus, 'encoder': "densenet121", 'weights': 'imagenet'},
+    # {'architecture': smp.UnetPlusPlus, 'encoder': "resnet18", 'weights': 'imagenet'},
+    # {'architecture': smp.UnetPlusPlus, 'encoder': "se_resnet50", 'weights': 'imagenet'},
+    # {'architecture': smp.UnetPlusPlus, 'encoder': "dpn68", 'weights': 'imagenet'},
+    {'architecture': smp.UnetPlusPlus, 'encoder': "timm-resnest14d", 'weights': 'imagenet'},
+    {'architecture': smp.UnetPlusPlus, 'encoder': "vgg11", 'weights': 'imagenet'},
+
 ]
+
 
 for architectures_encoders_weights in architectures_encoders_weights_vec:
     try:
@@ -343,10 +371,12 @@ for architectures_encoders_weights in architectures_encoders_weights_vec:
         file_name = 'model_' + architectures_encoders_weights['architecture'].__name__ + \
                     '_' + architectures_encoders_weights['encoder'] + \
                     '_' + architectures_encoders_weights['weights']
-        model_file_dir = '/media/data/local/corn/processed_stride768_v2/models__281021/'
+        model_file_dir = TILES_BASE_DIR + '/models__051121/'
         model_file_path = os.path.join(model_file_dir, file_name)
         results['model_file_path'] = model_file_path
         logs_file_path = os.path.join(model_file_dir, file_name + '_log.json')
+
+        os.makedirs(model_file_dir, exist_ok=True)
 
         results['architectures_encoders_weights']['architecture'] = results['architectures_encoders_weights']['architecture'].__name__
         with open(logs_file_path, 'w') as f:

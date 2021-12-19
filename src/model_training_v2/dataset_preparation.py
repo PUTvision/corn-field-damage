@@ -106,7 +106,7 @@ def split_tiles_into_train_valid_test_and_save(base_dir_path, subdirectories):
         json.dump(json_data, file, indent=1)
 
 
-def load_tiles_dataset_split(base_dir_path, dataset_name=DEFAULT_DATASET_SPLIT_FILE_NAME):
+def load_tiles_dataset_split(base_dir_path, dataset_name):
     input_file_path = os.path.join(base_dir_path, dataset_name)
     with open(input_file_path, 'r') as file:
         data = json.load(file)
