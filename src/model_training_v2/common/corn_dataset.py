@@ -5,9 +5,11 @@ import torch
 import cv2
 import albumentations as A
 import numpy as np
+import time
 
 from model_training_v2.common import dataset_preparation
 from model_training_v2.common.dataset_preparation import DEFAULT_DATASET_SPLIT_FILE_NAME
+from functools import lru_cache
 
 
 @dataclass
@@ -19,6 +21,19 @@ class TileDimensions:
 
 SEGMENTATION_CLASS_VALUES = [0, 255, 127]
 NUMBER_OF_SEGMENTATION_CLASSES = len(SEGMENTATION_CLASS_VALUES)
+
+
+@lru_cache(maxsize=10000)
+def _read_img(path):
+    image = cv2.imread(path)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # not really needed I guess
+    return image
+
+
+@lru_cache(maxsize=10000)
+def _read_mask(path):
+    image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    return image
 
 
 class CornFieldDamageDataset(torch.utils.data.Dataset):
@@ -56,9 +71,8 @@ class CornFieldDamageDataset(torch.utils.data.Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        image = cv2.imread(self.img_file_paths[idx])
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # not really needed I guess
-        mask = cv2.imread(self.mask_file_paths[idx], cv2.IMREAD_GRAYSCALE)
+        image = _read_img(self.img_file_paths[idx])
+        mask = _read_mask(self.mask_file_paths[idx])
 
         transformed = self._img_and_mask_transform(image=image, mask=mask)
         image, mask = transformed['image'], transformed['mask']

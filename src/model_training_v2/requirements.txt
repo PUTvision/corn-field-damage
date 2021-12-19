@@ -1,11 +1,11 @@
 ipython
 jupyter
-matplotlib~=3.4.3
+matplotlib #~=3.4.3
 scipy
-numpy~=1.21.2
-opencv-python~=4.5.3.56
-torch~=1.9.1
-albumentations~=1.1.0
+numpy #~=1.21.2
+opencv-python #~=4.5.3.56
+torch #~=1.9.1
+albumentations #~=1.1.0
 gitpython
 
 # segformer-pytorch
