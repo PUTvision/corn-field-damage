@@ -5,8 +5,8 @@ import torch
 from torch import nn
 import numpy as np
 
-from model_definition import ModelParams
-from model_training_results import ModelTrainingResults
+from model_training_v2.common.model_definition import ModelParams
+from model_training_v2.common.model_training_results import ModelTrainingResults
 
 
 class ModelTrainer:

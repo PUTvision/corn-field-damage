@@ -5,8 +5,8 @@ from matplotlib import pyplot as plt
 import torch
 from torch import nn
 
-from model_definition import ModelParams
-from model_training import ModelTrainer
+from model_training_v2.common.model_definition import ModelParams
+from model_training_v2.common.model_training import ModelTrainer
 
 
 def plot_images_from_dataloader(data_loader, number_of_images=2, seed=555):

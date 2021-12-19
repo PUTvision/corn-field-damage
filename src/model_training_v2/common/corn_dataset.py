@@ -6,8 +6,8 @@ import cv2
 import albumentations as A
 import numpy as np
 
-import dataset_preparation
-from dataset_preparation import DEFAULT_DATASET_SPLIT_FILE_NAME
+from model_training_v2.common import dataset_preparation
+from model_training_v2.common.dataset_preparation import DEFAULT_DATASET_SPLIT_FILE_NAME
 
 
 @dataclass

@@ -9,7 +9,7 @@ import pickle
 import git
 from matplotlib import pyplot as plt
 
-import model_definition
+from model_training_v2.common import model_definition
 
 
 def default_to_json(o):

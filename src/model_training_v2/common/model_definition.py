@@ -4,7 +4,7 @@ from typing import Optional
 
 import segmentation_models_pytorch as smp
 
-from corn_dataset import NUMBER_OF_SEGMENTATION_CLASSES
+from model_training_v2.common.corn_dataset import NUMBER_OF_SEGMENTATION_CLASSES
 
 
 class ModelType(enum.Enum):
