@@ -46,7 +46,7 @@ def plot_images_from_dataloader(data_loader, number_of_images=2, seed=555):
     return fig
 
 
-def plot_training_metrics(model_trainer: ModelTrainer):
+def plot_training_metrics(model_trainer: ModelTrainer, lrs):
     valid_logs_vec = model_trainer.valid_logs_vec
     train_logs_vec = model_trainer.train_logs_vec
 
@@ -66,6 +66,14 @@ def plot_training_metrics(model_trainer: ModelTrainer):
         plt.show()
 
         figures['training_metric__' + metric] = fig
+
+    fig = plt.figure()
+    plt.grid()
+    plt.plot(lrs)
+    plt.yscale('log')
+    plt.ylabel('learning rate')
+    plt.xlabel('epoch')
+    figures['learning_rates'] = fig
 
     return figures
 

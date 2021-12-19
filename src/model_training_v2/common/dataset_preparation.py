@@ -5,8 +5,19 @@ import os
 import random
 from typing import List
 
+import torch
+import numpy as np
 
 DEFAULT_DATASET_SPLIT_FILE_NAME = 'dataset_split.json'
+
+
+def init_seeds(seed: int = 555):
+    seed = 555
+    torch.manual_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
 
 
 @dataclass

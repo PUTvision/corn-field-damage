@@ -143,9 +143,15 @@ def get_train_valid_test_loaders(base_dir_path, batch_size, mask_scalling, datas
                                           tile_dimenstion=tile_dimenstion,
                                           augment=False)
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
-    valid_loader = torch.utils.data.DataLoader(valid_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
+    g = torch.Generator()
+    g.manual_seed(0)
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=False, drop_last=True, generator=g)
+    valid_loader = torch.utils.data.DataLoader(
+        valid_dataset, batch_size=batch_size, shuffle=False, drop_last=True, generator=g)
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset, batch_size=batch_size, shuffle=False, drop_last=True, generator=g)
     print(f'len(test_loader) = {len(test_loader)}')
     return train_loader, valid_loader, test_loader
 
