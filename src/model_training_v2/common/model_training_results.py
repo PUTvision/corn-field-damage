@@ -34,10 +34,11 @@ class ModelTrainingResults:
     def save(self, dir_path: str):
         os.makedirs(dir_path, exist_ok=True)
         file_path = os.path.join(dir_path, self.model_params.get_model_file_name() + '_result.json')
-        data = copy.deepcopy(self.__dict__)
+        data_shallow = copy.copy(self.__dict__)
+        data_shallow['figures'] = list(data_shallow['figures'].keys())
+        data = copy.deepcopy(data_shallow)
         data['model_params'].model_type = repr(data['model_params'].model_type)
         data['model_params'].loss_fnc = repr(data['model_params'].loss_fnc)
-        data['figures'] = data['figures'].keys()
         data['date'] = datetime.datetime.now()
 
         with open(file_path, 'wt') as file:
