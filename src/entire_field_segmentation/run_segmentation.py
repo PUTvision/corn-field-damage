@@ -6,22 +6,26 @@ import cv2
 import geopandas
 import numpy as np
 
+from entire_field_segmentation import field_segmentation_config
 from entire_field_segmentation.model import FieldDamageSegmentationModel
-from tiles_generation.common import config, util
+
+from tiles_generation.common import util
 from tiles_generation.common.area import FieldArea, DamageArea
 from tiles_generation.common.geo_tiff_image_wrapper import GeoTiffImageWrapper
 from tiles_generation.common.tile import Tile
 
 
 def main():
-    subdirectories = config.SUBDIRECTORIES_TO_PROCESS
-    model = FieldDamageSegmentationModel(config.MODEL_PATH)
+    subdirectories = field_segmentation_config.SUBDIRECTORIES_TO_PROCESS
+    model = FieldDamageSegmentationModel(
+        field_segmentation_config.MODEL_PATH,
+        model_type=field_segmentation_config.MODEL_TYPE)
 
     for i, subdirectory_name in enumerate(subdirectories):
         print('*'*30)
         print(f'Processing subdirectory "{subdirectory_name}"... ({i+1}/{len(subdirectories)})')
 
-        subdirectory_data_path = os.path.join(config.BASE_DATA_DIR_PATH, subdirectory_name)
+        subdirectory_data_path = os.path.join(field_segmentation_config.BASE_DATA_DIR_PATH, subdirectory_name)
         process_subdirectory(
             data_dir_path=subdirectory_data_path,
             model=model)
@@ -32,14 +36,14 @@ def main():
 
 
 def process_subdirectory(data_dir_path, model):
-    tif_wrapper = GeoTiffImageWrapper(file_path=os.path.join(data_dir_path, config.TIF_FILE_NAME))
-    field_area = FieldArea(file_path=os.path.join(data_dir_path, config.FIELD_AREA_FILE_NAME))
+    tif_wrapper = GeoTiffImageWrapper(file_path=os.path.join(data_dir_path, field_segmentation_config.TIF_FILE_NAME))
+    field_area = FieldArea(file_path=os.path.join(data_dir_path, field_segmentation_config.FIELD_AREA_FILE_NAME))
     field_area.create_mask_for_tif(tif_wrapper, show=False)
     tif_wrapper.img = field_area.apply_mask_on_img(tif_wrapper.img)
 
-    stride = int(config.TILE_SIZE * 0.9)  # slightly overlap tiles, because segmentation on the edges is not reliable
-    x_bins_number = (tif_wrapper.img_size_x_pixels - config.TILE_SIZE) // stride + 1
-    y_bins_number = (tif_wrapper.img_size_y_pixels - config.TILE_SIZE) // stride + 1
+    stride = int(field_segmentation_config.TILE_SIZE * 0.9)  # slightly overlap tiles, because segmentation on the edges is not reliable
+    x_bins_number = (tif_wrapper.img_size_x_pixels - field_segmentation_config.TILE_SIZE) // stride + 1
+    y_bins_number = (tif_wrapper.img_size_y_pixels - field_segmentation_config.TILE_SIZE) // stride + 1
     total_tiles = x_bins_number * y_bins_number
 
     full_predicted_img = np.zeros(tif_wrapper.img.shape[:2], np.uint8)
@@ -75,7 +79,7 @@ def process_subdirectory(data_dir_path, model):
 
     del field_area
     geo_data_frame = get_geo_data_frame(full_predicted_img=full_predicted_img, tif_wrapper=tif_wrapper)
-    geo_data_frame.to_file(os.path.join(data_dir_path, config.DAMAGE_AREA_FROM_NN_FILE_NAME), driver="GPKG")
+    geo_data_frame.to_file(os.path.join(data_dir_path, field_segmentation_config.DAMAGE_AREA_FROM_NN_FILE_NAME), driver="GPKG")
 
 
 def get_geo_data_frame(full_predicted_img, tif_wrapper):

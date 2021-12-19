@@ -37,7 +37,7 @@ class ModelParams:
 
 
 def get_model_with_params(model_type: ModelType) -> tuple:
-    params = ModelParams(model_type = model_type)
+    params = ModelParams(model_type=model_type)
 
     if model_type == ModelType.UNET:
         params.batch_size = 3

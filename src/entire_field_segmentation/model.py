@@ -3,24 +3,18 @@ import segmentation_models_pytorch as smp
 import torch
 import numpy as np
 
+from model_training_v2.common import corn_dataset
+from model_training_v2.common import model_definition
 from tiles_generation.common import util
 
 
 class FieldDamageSegmentationModel:
-    NUMBER_OF_SEGMENTATION_CLASSES = 3
+    NUMBER_OF_SEGMENTATION_CLASSES = corn_dataset.NUMBER_OF_SEGMENTATION_CLASSES
 
-    def __init__(self, model_file_path):
-        # copied from jupyter notebook for training
-        self.model = smp.DeepLabV3(
-            encoder_name="efficientnet-b0",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
-            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
-            classes=self.NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
-            activation='softmax2d',  # ?
-        )
+    def __init__(self, model_file_path, model_type):
+        self.model, _ = model_definition.get_model_with_params(model_type=model_type)
         self.model.load_state_dict(torch.load(model_file_path))
         self.model.eval()
-        # print(self.model)
 
     def predict_damage(self, img, show=False, debug=False):
         util.show_small_img(img, 'img', show=show)

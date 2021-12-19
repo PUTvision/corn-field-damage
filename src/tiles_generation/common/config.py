@@ -24,7 +24,6 @@ TIF_FILE_NAME = 'fotomapa.tif'
 FIELD_AREA_FILE_NAME = 'obszar.gpkg'
 DAMAGE_AREA_FILE_NAME = 'szkody_placowe.gpkg'
 POINT_DAMAGE_AREA_FILE_NAME = 'szkody_punktowe.gpkg'
-DAMAGE_AREA_FROM_NN_FILE_NAME = 'szkody_placowe_nn.gpkg'
 NVDI_FILE_PATH = 'NVDI_index_sentera_single_precision_ndvi.tif'
 
 
@@ -34,7 +33,7 @@ SUBDIRECTORIES_TO_PROCESS = [
     # "Kukurydza_RGB_9_ha",
     # 'Kukurydza_RGB_66_ha',
     #
-    # "kukurydza_5_ha",
+    "kukurydza_5_ha",
     # "kukurydza_10_ha",
     # "kukurydza_11_ha",
     # "kukurydza_13_ha",
