@@ -12,9 +12,9 @@ class ModelType(enum.Enum):
     UNET_PLUS_PLUS = enum.auto()
     DEEP_LAB_V3 = enum.auto()
     PAN = enum.auto()
-    # MANET = enum.auto()
-    # LINKNET = enum.auto()
-    # FPN = enum.auto()
+    DEEP_LAB_V3_PLUS = enum.auto()
+    LINKNET = enum.auto()
+    FPN = enum.auto()
     # SEGFORMER = enum.auto()
 
 
@@ -59,6 +59,7 @@ def get_model_with_params(model_type: ModelType) -> tuple:
         #     aux_params={'pooling': 'max', 'classes': 3}
         #     aux_params={'dropout':0.1, 'classes':3}
         )
+    # TODO add efficientnet-b0-efficientnet-b4, mobilenet, resnet, densenet
     elif model_type == ModelType.DEEP_LAB_V3:
         params.batch_size = 2
         model = smp.DeepLabV3(
@@ -77,7 +78,33 @@ def get_model_with_params(model_type: ModelType) -> tuple:
             classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
             activation='softmax2d',  # ?
         )
-
+    elif model_type == ModelType.DEEP_LAB_V3_PLUS:
+        params.batch_size = 2
+        model = smp.DeepLabV3Plus(
+            encoder_name="efficientnet-b0",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.LINKNET:
+        params.batch_size = 2
+        model = smp.Linknet(
+            encoder_name="efficientnet-b0",  # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',  # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.FPN:
+        params.batch_size = 2
+        model = smp.MAnet(
+            encoder_name="efficientnet-b0",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
     # elif SEGFORMER:
         # this one is good?
         # import sys
