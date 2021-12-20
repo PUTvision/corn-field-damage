@@ -60,6 +60,7 @@ def get_model_with_params(model_type: ModelType) -> tuple:
         #     aux_params={'dropout':0.1, 'classes':3}
         )
     elif model_type == ModelType.DEEP_LAB_V3:
+        params.batch_size = 2
         model = smp.DeepLabV3(
             encoder_name="efficientnet-b0",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
             encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
@@ -68,6 +69,7 @@ def get_model_with_params(model_type: ModelType) -> tuple:
             activation='softmax2d',  # ?
         )
     elif model_type == ModelType.PAN:
+        params.batch_size = 2
         model = smp.PAN(
             encoder_name="timm-gernet_s",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
             encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
