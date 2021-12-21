@@ -9,7 +9,16 @@ from model_training_v2.common.corn_dataset import NUMBER_OF_SEGMENTATION_CLASSES
 
 class ModelType(enum.Enum):
     UNET = enum.auto()
-    UNET_PLUS_PLUS = enum.auto()
+    UNET_PLUS_PLUS = enum.auto()  # efficientnet-b0
+    UNET_PLUS_PLUS__EFFICIENT_NET_B0 = enum.auto()
+    UNET_PLUS_PLUS__EFFICIENT_NET_B1 = enum.auto()
+    UNET_PLUS_PLUS__EFFICIENT_NET_B2 = enum.auto()
+    UNET_PLUS_PLUS__EFFICIENT_NET_B3 = enum.auto()
+    UNET_PLUS_PLUS__EFFICIENT_NET_B4 = enum.auto()
+    UNET_PLUS_PLUS__RESNET18 = enum.auto()
+    UNET_PLUS_PLUS__RESNET50 = enum.auto()
+    UNET_PLUS_PLUS__DENSENET121 = enum.auto()
+    UNET_PLUS_PLUS__DENSENET201 = enum.auto()
     DEEP_LAB_V3 = enum.auto()
     PAN = enum.auto()
     DEEP_LAB_V3_PLUS = enum.auto()
@@ -56,10 +65,106 @@ def get_model_with_params(model_type: ModelType) -> tuple:
             in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
             classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
             activation='softmax2d',  # ?
-        #     aux_params={'pooling': 'max', 'classes': 3}
-        #     aux_params={'dropout':0.1, 'classes':3}
         )
-    # TODO add efficientnet-b0-efficientnet-b4, mobilenet, resnet, densenet
+    elif model_type == ModelType.UNET_PLUS_PLUS__EFFICIENT_NET_B0:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="efficientnet-b0",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS__EFFICIENT_NET_B1:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="efficientnet-b1",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS__EFFICIENT_NET_B2:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="efficientnet-b2",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS__EFFICIENT_NET_B3:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="efficientnet-b3",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS__EFFICIENT_NET_B4:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="efficientnet-b4",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS__RESNET18:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="resnet18",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='ssl',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS__RESNET50:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="resnet50",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='ssl',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS__DENSENET121:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="densenet121",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS__DENSENET201:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="densenet201",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="efficientnet-b0",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS:
+        params.batch_size = 3
+        model = smp.UnetPlusPlus(
+            encoder_name="efficientnet-b0",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=3,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
     elif model_type == ModelType.DEEP_LAB_V3:
         params.batch_size = 2
         model = smp.DeepLabV3(
