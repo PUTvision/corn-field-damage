@@ -76,3 +76,4 @@ MINIMUM_TILE_FIELD_COVERAGE_PERCENTAGE = 50  # 0-100. Minimal percentage of corn
 
 COLOR_VALUE__DAMAGED_AREA_ON_TILE_MASK = 255  # color of damaged area on the image with mask for the tile
 COLOR_VALUE__NOT_FIELD_AREA_ON_TILE_MASK = 127  # color of pixels outside of field on the image with mask for the tile (so pixels that are neither good nor damaged corn)
+COLOR_VALUE__NOT_FIELD_AREA_ON_NDVI_IMAGE = 1

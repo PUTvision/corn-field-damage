@@ -9,11 +9,11 @@ from model_training_v2.common.model_definition import ModelParams
 from model_training_v2.common.model_training import ModelTrainer
 
 
-def plot_images_from_dataloader(data_loader, number_of_images=2, seed=555):
+def plot_images_from_dataloader(data_loader, number_of_images=2, is_ndvi=False, seed=555):
     dataset = data_loader.dataset
     rng = random.Random(seed)
 
-    columns = 4
+    columns = 4 + (1 if is_ndvi else 0)
     rows = number_of_images
     fig = plt.figure(figsize=(columns * 4, rows * 4))
     fig.suptitle('Example training dataset images')  # or plt.suptitle('Main title')
@@ -23,25 +23,44 @@ def plot_images_from_dataloader(data_loader, number_of_images=2, seed=555):
         image, mask = dataset[index]
         # image_path = dataset.img_path_at_index(index)  # TODO - add image_path to title
 
-        fig.add_subplot(rows, columns, 1 + i * columns + 0)
-        plt.imshow(image.transpose(1, 2, 0))
+        if is_ndvi:
+            image_rgb = image[0:3, :, :]
+            image_ndvi = image[3, :, :]
+        else:
+            image_rgb = image
+
+        column_terator = 0
+
+        fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
+        plt.imshow(image_rgb.transpose(1, 2, 0))
         plt.axis('off')
         plt.title('field RGB')
+        column_terator += 1
 
-        fig.add_subplot(rows, columns, 1 + i * columns + 1)
+        if is_ndvi:
+            fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
+            plt.imshow(image_ndvi)
+            plt.axis('off')
+            plt.title('field NDVI')
+            column_terator += 1
+
+        fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
         plt.imshow(mask[0, :, :])
         plt.axis('off')
         plt.title('healthy field mask')
+        column_terator += 1
 
-        fig.add_subplot(rows, columns, 1 + i * columns + 2)
+        fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
         plt.imshow(mask[1, :, :])
         plt.axis('off')
         plt.title('damaged field mask')
+        column_terator += 1
 
-        fig.add_subplot(rows, columns, 1 + i * columns + 3)
+        fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
         plt.imshow(mask[2, :, :])
         plt.axis('off')
         plt.title('out-of-field mask')
+        column_terator += 1
 
     return fig
 
@@ -78,7 +97,7 @@ def plot_training_metrics(model_trainer: ModelTrainer, lrs):
     return figures
 
 
-def plot_example_predictions(model, model_params: ModelParams, test_loader, number_of_images=16):
+def plot_example_predictions(model, model_params: ModelParams, test_loader, number_of_images=16, is_ndvi=False):
     vi = iter(test_loader)
 
     number_of_batches = int(math.ceil(number_of_images / model_params.batch_size))
@@ -97,47 +116,69 @@ def plot_example_predictions(model, model_params: ModelParams, test_loader, numb
                 activation = nn.Softmax2d()
                 model_output = activation(model_output)
 
-        columns = 7
+        columns = 7 + (1 if is_ndvi else 0)
         rows = len(img_batch)
         fig = plt.figure(figsize=(columns * 4, rows * 4))
 
         for i in range(len(img_batch)):
-            fig.add_subplot(rows, columns, 1 + i * columns + 0)
-            plt.imshow(img_batch[i].numpy().transpose([1, 2, 0]))
+            column_terator = 0
+
+            if is_ndvi:
+                image_rgb = img_batch[i].numpy()[0:3, :, :]
+                image_ndvi = img_batch[i].numpy()[3, :, :]
+            else:
+                image_rgb = img_batch[i].numpy()
+
+            fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
+            plt.imshow(image_rgb.transpose([1, 2, 0]))
             plt.axis('off')
             plt.title('img')
+            column_terator += 1
 
-            fig.add_subplot(rows, columns, 1 + i * columns + 1)
+            if is_ndvi:
+                fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
+                plt.imshow(image_ndvi)
+                plt.axis('off')
+                plt.title('field NDVI')
+                column_terator += 1
+
+            fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
             plt.imshow(mask_batch[i][1].numpy())
             plt.axis('off')
             plt.title('original damage mask')
+            column_terator += 1
 
-            fig.add_subplot(rows, columns, 1 + i * columns + 2)
+            fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
             plt.imshow(model_output[i][1])
             plt.axis('off')
             plt.title('prediction damage')
+            column_terator += 1
 
-            fig.add_subplot(rows, columns, 1 + i * columns + 3)
+            fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
             cax = plt.imshow(model_output[i][1] - mask_batch[i][1], vmin=-1.1, vmax=1.1)
             plt.title('damage diff (predict-gt)')
             plt.axis('off')
             cbar = fig.colorbar(cax, ticks=[-1, 0, 1])
             cbar.ax.set_yticklabels(['false negative', 'true', 'false positive'])
+            column_terator += 1
 
-            fig.add_subplot(rows, columns, 1 + i * columns + 4)
+            fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
             plt.imshow(model_output[i][0])
             plt.title('prediction healty field')
             plt.axis('off')
+            column_terator += 1
 
-            fig.add_subplot(rows, columns, 1 + i * columns + 5)
+            fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
             plt.imshow(model_output[i][1] > 0.5)
             plt.axis('off')
             plt.title('prediction damage \nthresholded (prob>0.5)')
+            column_terator += 1
 
-            fig.add_subplot(rows, columns, 1 + i * columns + 6)
+            fig.add_subplot(rows, columns, 1 + i * columns + column_terator)
             plt.imshow(model_output[i][1] > 0.3)
             plt.axis('off')
             plt.title('prediction damage \nthresholded (prob>0.3)')
+            column_terator += 1
 
         figs[f'test_predictions_{batch_number}'] = fig
         plt.show()

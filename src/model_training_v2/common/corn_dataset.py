@@ -24,9 +24,13 @@ NUMBER_OF_SEGMENTATION_CLASSES = len(SEGMENTATION_CLASS_VALUES)
 
 
 @lru_cache(maxsize=10000)
-def _read_img(path):
-    image = cv2.imread(path)
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # not really needed I guess
+def _read_img(path, is_ndvi):
+    if is_ndvi:
+        image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+        image = cv2.cvtColor(image, cv2.COLOR_BGRA2RGBA)  # not really needed I guess
+    else:
+        image = cv2.imread(path)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)  # not really needed I guess
     return image
 
 
@@ -41,12 +45,14 @@ class CornFieldDamageDataset(torch.utils.data.Dataset):
                  img_file_paths,
                  mask_file_paths,
                  tile_dimenstion: TileDimensions,
+                 is_ndvi: bool,
                  mask_scalling: Optional[float] = None,
                  augment=True):
         self.img_file_paths = img_file_paths
         self.mask_file_paths = mask_file_paths
         self.tile_dimenstion = tile_dimenstion
         self.mask_scalling = mask_scalling
+        self.is_ndvi = is_ndvi
 
         self.cropping_params = {
             'x_min': self.tile_dimenstion.crop_tile_margin,
@@ -71,7 +77,7 @@ class CornFieldDamageDataset(torch.utils.data.Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        image = _read_img(self.img_file_paths[idx])
+        image = _read_img(self.img_file_paths[idx], is_ndvi=self.is_ndvi)
         mask = _read_mask(self.mask_file_paths[idx])
 
         transformed = self._img_and_mask_transform(image=image, mask=mask)
@@ -112,7 +118,12 @@ class CornFieldDamageDataset(torch.utils.data.Dataset):
         return transform
 
 
-def get_train_valid_test_loaders(base_dir_path, batch_size, mask_scalling, dataset_name=DEFAULT_DATASET_SPLIT_FILE_NAME):
+def get_train_valid_test_loaders(
+        base_dir_path,
+        batch_size,
+        mask_scalling,
+        dataset_name=DEFAULT_DATASET_SPLIT_FILE_NAME,
+        is_ndvi=False):
     tile_paths_train, tile_paths_valid, tile_paths_test = dataset_preparation.load_tiles_dataset_split(
         base_dir_path=base_dir_path,
         dataset_name=dataset_name)
@@ -131,17 +142,20 @@ def get_train_valid_test_loaders(base_dir_path, batch_size, mask_scalling, datas
     train_dataset = CornFieldDamageDataset(img_file_paths=tile_paths_train.get_img_paths(),
                                            mask_file_paths=tile_paths_train.get_mask_paths(),
                                            mask_scalling=mask_scalling,
-                                           tile_dimenstion=tile_dimenstion)
+                                           tile_dimenstion=tile_dimenstion,
+                                           is_ndvi=is_ndvi)
     valid_dataset = CornFieldDamageDataset(img_file_paths=tile_paths_valid.get_img_paths(),
                                            mask_file_paths=tile_paths_valid.get_mask_paths(),
                                            mask_scalling=mask_scalling,
                                            tile_dimenstion=tile_dimenstion,
-                                           augment=False)
+                                           augment=False,
+                                           is_ndvi=is_ndvi)
     test_dataset = CornFieldDamageDataset(img_file_paths=tile_paths_test.get_img_paths(),
                                           mask_file_paths=tile_paths_test.get_mask_paths(),
                                           mask_scalling=mask_scalling,
                                           tile_dimenstion=tile_dimenstion,
-                                          augment=False)
+                                          augment=False,
+                                           is_ndvi=is_ndvi)
 
     g = torch.Generator()
     g.manual_seed(0)
@@ -157,7 +171,10 @@ def get_train_valid_test_loaders(base_dir_path, batch_size, mask_scalling, datas
 
 
 def main():
-    get_train_valid_test_loaders(base_dir_path='/media/data/local/corn/new/tiles_stride_768/', batch_size=1, mask_scalling=None)
+    train_dataset, _, _ = get_train_valid_test_loaders(
+        base_dir_path='/media/data/local/corn/new/tiles_ndvi_stride_768',
+        batch_size=1, mask_scalling=None, is_ndvi=True)
+    train_dataset.dataset[0]
 
 
 if __name__ == '__main__':

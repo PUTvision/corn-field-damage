@@ -1,3 +1,4 @@
+import math
 import os
 from dataclasses import dataclass
 from typing import Tuple, List
@@ -147,6 +148,16 @@ class GeoTiffImageWrapperNDVI(GeoTiffImageWrapper):
     def apply_mask(self, mask_img, show=False):
         # one channel NDVI file is float32
         self.img = cv2.copyTo(self.img, mask_img)
+
+        # set pixels outside of the real corn field to some other value
+        # we need to split this operation into a few steps, because np.where consumes too much RAM!
+        STEP = 5000
+        for i in range(math.ceil(self.img.shape[0] / STEP)):
+            start_index = i * STEP
+            end_index = (i+1) * STEP
+            self.img[start_index:end_index, :][np.where(mask_img[start_index:end_index, :] == 0)] = \
+                config.COLOR_VALUE__NOT_FIELD_AREA_ON_NDVI_IMAGE
+
         util.show_small_img(img=self.img, name='field_masked', show=show)
 
     def transform_to_rgb_tif_wrapper_pixels_space(self, tif_wrapper: GeoTiffImageWrapper):
