@@ -156,9 +156,29 @@ def main():
     #     ],
     # )
 
-    tile_paths_train, tile_paths_valid, tile_paths_test = load_tiles_dataset_split(
-        base_dir_path='/media/data/local/corn/new/tiles_stride_768_ndvi/')
-    print(tile_paths_train.get_img_paths())
+    split_tiles_into_train_valid_test_and_save(
+        base_dir_path='/media/data/local/corn/new/tiles_stride_384/',
+        subdirectories=[
+            "Kukurydza_RGB_25_ha",
+            "Kukurydza_RGB_25.5_ha",
+            "Kukurydza_RGB_9_ha",
+            'Kukurydza_RGB_66_ha',
+
+            "kukurydza_5_ha",
+            "kukurydza_10_ha",
+            "kukurydza_11_ha",
+            "kukurydza_13_ha",
+            "kukurydza_15_ha",
+            "kukurydza_18_ha",
+            "kukurydza_25_ha",
+            "kukurydza_38_ha",
+            "kukurydza_60_ha",
+        ],
+    )
+
+    # tile_paths_train, tile_paths_valid, tile_paths_test = load_tiles_dataset_split(
+    #     base_dir_path='/media/data/local/corn/new/tiles_stride_768_ndvi/')
+    # print(tile_paths_train.get_img_paths())
 
 
 if __name__ == '__main__':

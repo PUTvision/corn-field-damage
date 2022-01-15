@@ -112,7 +112,7 @@ def get_model_with_params(model_type: ModelType) -> tuple:
             activation='softmax2d',  # ?
         )
     elif model_type == ModelType.UNET_PLUS_PLUS__RESNET18:
-        params.batch_size = 3
+        params.batch_size = 1
         model = smp.UnetPlusPlus(
             encoder_name="resnet18",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
             encoder_weights='ssl',     # use `imagenet` pre-trained weights for encoder initialization
@@ -121,7 +121,7 @@ def get_model_with_params(model_type: ModelType) -> tuple:
             activation='softmax2d',  # ?
         )
     elif model_type == ModelType.UNET_PLUS_PLUS__RESNET50:
-        params.batch_size = 3
+        params.batch_size = 1
         model = smp.UnetPlusPlus(
             encoder_name="resnet50",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
             encoder_weights='ssl',     # use `imagenet` pre-trained weights for encoder initialization
@@ -130,7 +130,7 @@ def get_model_with_params(model_type: ModelType) -> tuple:
             activation='softmax2d',  # ?
         )
     elif model_type == ModelType.UNET_PLUS_PLUS__DENSENET121:
-        params.batch_size = 3
+        params.batch_size = 1
         model = smp.UnetPlusPlus(
             encoder_name="densenet121",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
             encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
@@ -139,7 +139,7 @@ def get_model_with_params(model_type: ModelType) -> tuple:
             activation='softmax2d',  # ?
         )
     elif model_type == ModelType.UNET_PLUS_PLUS__DENSENET201:
-        params.batch_size = 3
+        params.batch_size = 1
         model = smp.UnetPlusPlus(
             encoder_name="densenet201",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
             encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
