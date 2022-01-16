@@ -85,7 +85,7 @@ class CornFieldDamageDataset(torch.utils.data.Dataset):
 
         if self.mask_scalling:  # resize output image
             mask = cv2.resize(mask,
-                              dsize=(int(mask.shape[0] * self.mask_scalling), int(mask.shape[1] * self.mask_scalling)),
+                              dsize=(int(mask.shape[0] // self.mask_scalling), int(mask.shape[1] // self.mask_scalling)),
                               interpolation=cv2.INTER_NEAREST)
 
         masks = [(mask == v) for v in SEGMENTATION_CLASS_VALUES]

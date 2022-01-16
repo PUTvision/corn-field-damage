@@ -1,6 +1,10 @@
 import enum
+import os.path
+import sys
 from dataclasses import dataclass
+from functools import partial
 from typing import Optional
+from torch import nn, optim
 
 import segmentation_models_pytorch as smp
 
@@ -24,7 +28,7 @@ class ModelType(enum.Enum):
     DEEP_LAB_V3_PLUS = enum.auto()
     LINKNET = enum.auto()
     FPN = enum.auto()
-    # SEGFORMER = enum.auto()
+    SEGFORMER_B3 = enum.auto()
 
 
 def get_mask_scalling_for_model(model_type: ModelType):
@@ -45,7 +49,7 @@ class ModelParams:
         return 'model_' + self.model_type.name
 
 
-def get_model_with_params(model_type: ModelType, in_channels=3) -> tuple:
+def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) -> tuple:
     params = ModelParams(model_type=model_type)
 
     if model_type == ModelType.UNET:
@@ -210,38 +214,44 @@ def get_model_with_params(model_type: ModelType, in_channels=3) -> tuple:
             classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
             activation='softmax2d',  # ?
         )
-    # elif SEGFORMER:
-        # this one is good?
-        # import sys
-        # sys.path.insert(0,'/home/przemek/Projects/pp/corn-field-damage/src/model_training/segmentation_pytorch-main')
+    elif model_type == ModelType.SEGFORMER_B3:
+        # As segformer is in a separate library within submodule, we need to add it to path manually.
+        # It is added here to allow working with other modules without need for this module
+        SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+        segformer_submodule_path = os.path.join(SCRIPT_DIR, '..', 'segmentation_pytorch')
+        sys.path.insert(0, segformer_submodule_path)
 
-        # from configs.segformer_config import config as cfg
-        # from models.segformer import Segformer
+        from model_training_v2.segmentation_pytorch.configs.segformer_config import config as segformer_cfg
+        from model_training_v2.segmentation_pytorch.models.segformer import Segformer
 
-        # SEG_CFG = cfg.MODEL.B3
-        # model = Segformer(
-        #     num_classes = 3,
-        #     img_size = 512,  #cfg.DATASET.CROP_SIZE[0],
+        if tile_size is None:
+            raise Exception("For Segformer model tile size cannot be None!")
 
-        #     # pretrained = SEG_CFG.PRETRAINED,
-        #     pretrained = None,
-        #     patch_size = cfg.MODEL.PATCH_SIZE,
-        #     embed_dims = SEG_CFG.CHANNEL_DIMS,
-        #     num_heads = SEG_CFG.NUM_HEADS,
-        #     mlp_ratios = SEG_CFG.MLP_RATIOS,
-        #     qkv_bias = SEG_CFG.QKV_BIAS,
-        #     depths = SEG_CFG.DEPTHS,
-        #     sr_ratios = SEG_CFG.SR_RATIOS,
-        #     drop_rate = SEG_CFG.DROP_RATE,
-        #     drop_path_rate = SEG_CFG.DROP_PATH_RATE,
-        #     decoder_dim = SEG_CFG.DECODER_DIM,
-        #     norm_layer = partial(nn.LayerNorm, eps=1e-6),
-        # ).to(DEVICE)
-        # metrics_activation = 'softmax2d'
+        segformer_cfg.DATASET.NUM_CLASSES = NUMBER_OF_SEGMENTATION_CLASSES
+        segformer_cfg.DATASET.CROP_SIZE = (tile_size, tile_size)
 
-        #     params.mask_scalling_factor = 4.0
-        #     params.metrics_activation = 'softmax2d'
-        #     patams.loss_fnc = smp.utils.losses.CrossEntropyLoss()  # without soft2d_out and with activation
+        SEG_CFG = segformer_cfg.MODEL.B3
+        model = Segformer(
+            num_classes=3,
+            img_size=tile_size,
+            # pretrained = SEG_CFG.PRETRAINED,
+            pretrained = None,
+            patch_size = segformer_cfg.MODEL.PATCH_SIZE,
+            embed_dims = SEG_CFG.CHANNEL_DIMS,
+            num_heads = SEG_CFG.NUM_HEADS,
+            mlp_ratios = SEG_CFG.MLP_RATIOS,
+            qkv_bias = SEG_CFG.QKV_BIAS,
+            depths = SEG_CFG.DEPTHS,
+            sr_ratios = SEG_CFG.SR_RATIOS,
+            drop_rate = SEG_CFG.DROP_RATE,
+            drop_path_rate = SEG_CFG.DROP_PATH_RATE,
+            decoder_dim = SEG_CFG.DECODER_DIM,
+            norm_layer = partial(nn.LayerNorm, eps=1e-6),
+        )
+        params.mask_scalling_factor = 4.0
+        params.metrics_activation = 'softmax2d'
+        params.loss_fnc = smp.utils.losses.CrossEntropyLoss  # without soft2d_out and with activation
+        params.batch_size = 1
 
 
         # SOME old segformer - not working?
@@ -279,3 +289,22 @@ def get_model_with_params(model_type: ModelType, in_channels=3) -> tuple:
         raise Exception(f"Unknown model type: {model_type.name}")
 
     return model, params
+
+
+def main():
+    model, model_params = get_model_with_params(ModelType.SEGFORMER_B3, in_channels=3, tile_size=512)
+
+    from model_training_v2.common import model_training
+    from model_training_v2.common.model_training_results import ModelTrainingResults
+
+    model_trainer = model_training.ModelTrainer(
+        model=model,
+        device='cpu',
+        model_params=model_params,
+        res=ModelTrainingResults(),
+        )
+
+
+if __name__ == '__main__':
+    main()
+

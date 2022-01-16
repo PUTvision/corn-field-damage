@@ -1,0 +1,3 @@
+[submodule "src/model_training_v2/segmentation_pytorch"]
+	path = src/model_training_v2/segmentation_pytorch
+	url = https://github.com/camlaedtke/segmentation_pytorch
