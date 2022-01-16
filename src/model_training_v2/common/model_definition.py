@@ -28,6 +28,7 @@ class ModelType(enum.Enum):
     DEEP_LAB_V3_PLUS = enum.auto()
     LINKNET = enum.auto()
     FPN = enum.auto()
+    SEGFORMER_B0 = enum.auto()
     SEGFORMER_B3 = enum.auto()
 
 
@@ -214,7 +215,7 @@ def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) 
             classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
             activation='softmax2d',  # ?
         )
-    elif model_type == ModelType.SEGFORMER_B3:
+    elif model_type in [ModelType.SEGFORMER_B3, ModelType.SEGFORMER_B0]:
         # As segformer is in a separate library within submodule, we need to add it to path manually.
         # It is added here to allow working with other modules without need for this module
         SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -230,7 +231,13 @@ def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) 
         segformer_cfg.DATASET.NUM_CLASSES = NUMBER_OF_SEGMENTATION_CLASSES
         segformer_cfg.DATASET.CROP_SIZE = (tile_size, tile_size)
 
-        SEG_CFG = segformer_cfg.MODEL.B3
+        if model_type == ModelType.SEGFORMER_B3:
+            SEG_CFG = segformer_cfg.MODEL.B3
+        elif model_type == ModelType.SEGFORMER_B0:
+            SEG_CFG = segformer_cfg.MODEL.B0
+        else:
+            raise Exception("Unknwon segformer type!")
+
         model = Segformer(
             num_classes=3,
             img_size=tile_size,
