@@ -31,6 +31,9 @@ class ModelType(enum.Enum):
     SEGFORMER_B0 = enum.auto()
     SEGFORMER_B3 = enum.auto()
 
+    def is_segformer(self):
+        return self in [self.SEGFORMER_B0, self.SEGFORMER_B3]
+
 
 def get_mask_scalling_for_model(model_type: ModelType):
     # if model_type == ModelType.SEGFORMER:
@@ -215,7 +218,7 @@ def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) 
             classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
             activation='softmax2d',  # ?
         )
-    elif model_type in [ModelType.SEGFORMER_B3, ModelType.SEGFORMER_B0]:
+    elif model_type.is_segformer():
         # As segformer is in a separate library within submodule, we need to add it to path manually.
         # It is added here to allow working with other modules without need for this module
         SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))

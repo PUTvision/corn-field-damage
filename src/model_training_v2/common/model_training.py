@@ -16,6 +16,7 @@ class ModelTrainer:
         self.model = model
 
         metrics_activation = model_params.metrics_activation
+        print(f'ModelTrainer metrics_activation = {model_params.metrics_activation}')
         self.metrics = [
             smp.utils.metrics.IoU(threshold=0.5, name='IoU', activation=metrics_activation),
             smp.utils.metrics.IoU(threshold=0.5, ignore_channels=[1, 2], name='IoU-0', activation=metrics_activation),
