@@ -82,7 +82,7 @@ def plot_training_metrics(model_trainer: ModelTrainer, lrs):
         plt.xlabel('epoch')
         plt.ylabel(metric)
         plt.grid()
-        plt.show()
+        plt.show(block=False)
 
         figures['training_metric__' + metric] = fig
 
@@ -181,7 +181,7 @@ def plot_example_predictions(model, model_params: ModelParams, test_loader, numb
             column_terator += 1
 
         figs[f'test_predictions_{batch_number}'] = fig
-        plt.show()
+        plt.show(block=False)
 
     print('check wheher classification for one pixel makes sense...')
     one_pixel_classes = model_output[0][:, 33, 33]

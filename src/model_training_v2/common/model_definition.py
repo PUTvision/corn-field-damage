@@ -20,7 +20,9 @@ class ModelType(enum.Enum):
     UNET_PLUS_PLUS__EFFICIENT_NET_B3 = enum.auto()
     UNET_PLUS_PLUS__EFFICIENT_NET_B4 = enum.auto()
     UNET_PLUS_PLUS__RESNET18 = enum.auto()
+    UNET_PLUS_PLUS__RESNET34 = enum.auto()
     UNET_PLUS_PLUS__RESNET50 = enum.auto()
+    UNET_PLUS_PLUS__RESNET101 = enum.auto()
     UNET_PLUS_PLUS__DENSENET121 = enum.auto()
     UNET_PLUS_PLUS__DENSENET201 = enum.auto()
     DEEP_LAB_V3 = enum.auto()
@@ -123,7 +125,16 @@ def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) 
         params.batch_size = 1
         model = smp.UnetPlusPlus(
             encoder_name="resnet18",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-            encoder_weights='ssl',     # use `imagenet` pre-trained weights for encoder initialization
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=in_channels,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS__RESNET34:
+        params.batch_size = 1
+        model = smp.UnetPlusPlus(
+            encoder_name="resnet34",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
             in_channels=in_channels,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
             classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
             activation='softmax2d',  # ?
@@ -132,7 +143,16 @@ def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) 
         params.batch_size = 1
         model = smp.UnetPlusPlus(
             encoder_name="resnet50",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
-            encoder_weights='ssl',     # use `imagenet` pre-trained weights for encoder initialization
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=in_channels,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation='softmax2d',  # ?
+        )
+    elif model_type == ModelType.UNET_PLUS_PLUS__RESNET101:
+        params.batch_size = 1
+        model = smp.UnetPlusPlus(
+            encoder_name="resnet101",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
             in_channels=in_channels,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
             classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
             activation='softmax2d',  # ?
