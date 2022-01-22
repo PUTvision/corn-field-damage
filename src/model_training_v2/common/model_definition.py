@@ -279,8 +279,14 @@ def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) 
             norm_layer = partial(nn.LayerNorm, eps=1e-6),
         )
         params.mask_scalling_factor = 4.0
-        params.metrics_activation = 'softmax2d'
-        params.loss_fnc = smp.utils.losses.CrossEntropyLoss  # without soft2d_out and with activation
+        
+        #params.metrics_activation = 'softmax2d'
+        #params.loss_fnc = smp.utils.losses.CrossEntropyLoss  # without soft2d_out and with activation
+        model = nn.Sequential(
+          model,
+          nn.Softmax2d()
+        )
+        
         params.batch_size = 1
 
 
