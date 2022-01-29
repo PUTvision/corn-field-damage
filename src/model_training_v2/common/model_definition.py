@@ -32,6 +32,7 @@ class ModelType(enum.Enum):
     FPN = enum.auto()
     SEGFORMER_B0 = enum.auto()
     SEGFORMER_B3 = enum.auto()
+    UNET_PLUS_PLUS__EFFICIENT_NET_B3_CROSS_ENTROPY = enum.auto()
 
     def is_segformer(self):
         return self in [self.SEGFORMER_B0, self.SEGFORMER_B3]
@@ -284,7 +285,9 @@ def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) 
         #params.loss_fnc = smp.utils.losses.CrossEntropyLoss  # without soft2d_out and with activation
         model = nn.Sequential(
           model,
-          nn.Softmax2d()
+          nn.BatchNorm2d(3),
+          # nn.Softmax2d()
+          nn.Softmax(dim=1)
         )
         
         params.batch_size = 1
@@ -320,7 +323,17 @@ def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) 
         #     cfg_model,
         #     train_cfg=None,
         #     test_cfg=None)
-
+    elif model_type == ModelType.UNET_PLUS_PLUS__EFFICIENT_NET_B3_CROSS_ENTROPY:
+        params.batch_size = 3
+        params.metrics_activation = 'softmax2d'
+        params.loss_fnc = smp.utils.losses.CrossEntropyLoss  # without soft2d_out and with activation
+        model = smp.UnetPlusPlus(
+            encoder_name="efficientnet-b3",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
+            in_channels=in_channels,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
+            classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
+            activation=None,  # ?
+        )
     else:
         raise Exception(f"Unknown model type: {model_type.name}")
 
