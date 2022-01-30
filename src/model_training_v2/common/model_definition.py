@@ -13,8 +13,8 @@ from model_training_v2.common.corn_dataset import NUMBER_OF_SEGMENTATION_CLASSES
 
 class ModelType(enum.Enum):
     UNET = enum.auto()
-    UNET_PLUS_PLUS = enum.auto()
     UNET__EFFICIENT_NET = enum.auto()
+    UNET_PLUS_PLUS = enum.auto()
     UNET_PLUS_PLUS__EFFICIENT_NET_B0 = enum.auto()
     UNET_PLUS_PLUS__EFFICIENT_NET_B1 = enum.auto()
     UNET_PLUS_PLUS__EFFICIENT_NET_B2 = enum.auto()
@@ -69,7 +69,7 @@ def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) 
             classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
             activation='softmax2d',  # ?
         )
-    if model_type == ModelType.UNET__EFFICIENT_NET:
+    elif model_type == ModelType.UNET__EFFICIENT_NET:
         params.batch_size = 3
         model = smp.Unet(
             encoder_name="efficientnet-b0",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
