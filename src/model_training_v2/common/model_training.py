@@ -17,16 +17,24 @@ class ModelTrainer:
 
         metrics_activation = model_params.metrics_activation
         print(f'ModelTrainer metrics_activation = {model_params.metrics_activation}')
-        self.metrics = [
-            smp.utils.metrics.IoU(threshold=0.5, name='IoU', activation=metrics_activation),
-            smp.utils.metrics.IoU(threshold=0.5, ignore_channels=[1, 2], name='IoU-0', activation=metrics_activation),
-            smp.utils.metrics.IoU(threshold=0.5, ignore_channels=[0, 2], name='IoU-1', activation=metrics_activation),
-            smp.utils.metrics.IoU(threshold=0.5, ignore_channels=[0, 1], name='IoU-2', activation=metrics_activation),
-            # smp.utils.metrics.Fscore(threshold=0.5, activation=metrics_activation),  # dice_loss ~= 1 - Fscore
-            smp.utils.metrics.Fscore(threshold=0.5, ignore_channels=[2], activation=metrics_activation),
-            smp.utils.metrics.Accuracy(threshold=0.5, ignore_channels=[2], activation=metrics_activation),
-            smp.utils.metrics.Recall(threshold=0.5, ignore_channels=[2], activation=metrics_activation),
-            smp.utils.metrics.Precision(threshold=0.5, ignore_channels=[2], activation=metrics_activation),
+        threshold = 0.5
+        self.test_metrics = [
+            smp.utils.metrics.IoU(threshold=threshold, name='IoU', activation=metrics_activation),
+            smp.utils.metrics.IoU(threshold=threshold, ignore_channels=[0, 2], name='IoU-1', activation=metrics_activation),
+            smp.utils.metrics.Fscore(threshold=threshold, name='fscore-all', activation=metrics_activation),
+            smp.utils.metrics.Fscore(threshold=threshold, ignore_channels=[0, 2], name='fscore-1', activation=metrics_activation),
+
+            smp.utils.metrics.Accuracy(threshold=threshold, name='acc-all', activation=metrics_activation),
+
+            smp.utils.metrics.Precision(threshold=threshold, name='prec-all', activation=metrics_activation),
+            smp.utils.metrics.Precision(threshold=threshold, ignore_channels=[0, 2], name='prec-1', activation=metrics_activation),
+            smp.utils.metrics.Recall(threshold=threshold, ignore_channels=[0, 2], name='recall-1', activation=metrics_activation),
+            smp.utils.metrics.Recall(threshold=threshold, ignore_channels=[1, 2], name='recall-0', activation=metrics_activation),
+        ]
+
+        self.train_metrics = [
+            smp.utils.metrics.IoU(threshold=threshold, name='IoU', activation=metrics_activation),
+            smp.utils.metrics.Fscore(threshold=threshold, ignore_channels=[0, 2], name='fscore-1', activation=metrics_activation),
         ]
 
         # optimizer = optim.SGD(model_fnn.parameters(), lr=0.0001, momentum=0.9)
@@ -37,7 +45,7 @@ class ModelTrainer:
         self.train_epoch = smp.utils.train.TrainEpoch(
             model,
             loss=self.loss,
-            metrics=self.metrics,
+            metrics=self.train_metrics,
             optimizer=self.optimizer,
             device=device,
             verbose=True,
@@ -46,7 +54,7 @@ class ModelTrainer:
         self.valid_epoch = smp.utils.train.ValidEpoch(
             model,
             loss=self.loss,
-            metrics=self.metrics,
+            metrics=self.train_metrics,
             device=device,
             verbose=True,
         )
@@ -54,17 +62,17 @@ class ModelTrainer:
         self.test_epoch = smp.utils.train.ValidEpoch(
             model,
             loss=self.loss,
-            metrics=self.metrics,
+            metrics=self.test_metrics,
             device=device,
             verbose=True,
         )
 
-        for e in [self.valid_epoch, self.train_epoch]:
-            e.metrics[1].__name__ = "IoU_Class0"
-            e.metrics[2].__name__ = "IoU_Class1"
-            e.metrics[3].__name__ = "IoU_Class2"
-            # e.metrics[4].__name__ = "Fscore_all_classes"  # error while setting
-            # e.metrics[5].__name__ = "Fscore"
+        # for e in [self.valid_epoch, self.train_epoch]:
+        #     e.metrics[1].__name__ = "IoU_Class1"
+        #     # e.metrics[2].__name__ = "IoU_Class1"
+        #     # e.metrics[3].__name__ = "IoU_Class2"
+        #     # e.metrics[4].__name__ = "Fscore_all_classes"  # error while setting
+        #     # e.metrics[5].__name__ = "Fscore"
 
         self.max_score = 0
         self.train_logs_vec = []
