@@ -7,7 +7,7 @@ opencv-python #~=4.5.3.56
 torch #~=1.9.1
 albumentations #~=1.1.0
 gitpython
-segmentation_models_pytorch
+segmentation-models-pytorch==0.2.1
 
 
 # segformer-pytorch

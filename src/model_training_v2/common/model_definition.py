@@ -207,7 +207,8 @@ def get_model_with_params(model_type: ModelType, in_channels=3, tile_size=None) 
     elif model_type == ModelType.PAN:
         params.batch_size = 2
         model = smp.PAN(
-            encoder_name="timm-gernet_s",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            # encoder_name="timm-gernet_s",        # choose encoder, e.g. mobilenet_v2 or efficientnet-b7
+            encoder_name="efficientnet-b0",
             encoder_weights='imagenet',     # use `imagenet` pre-trained weights for encoder initialization
             in_channels=in_channels,                  # model input channels (1 for gray-scale images, 3 for RGB, etc.)
             classes=NUMBER_OF_SEGMENTATION_CLASSES,  # model output channels (number of classes in your dataset)
