@@ -23,7 +23,7 @@ SEGMENTATION_CLASS_VALUES = [0, 255, 127]
 NUMBER_OF_SEGMENTATION_CLASSES = len(SEGMENTATION_CLASS_VALUES)
 
 
-@lru_cache(maxsize=10000)
+# @lru_cache(maxsize=10000)
 def _read_img(path, is_ndvi):
     if is_ndvi:
         image = cv2.imread(path, cv2.IMREAD_UNCHANGED)
